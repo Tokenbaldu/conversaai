@@ -1,1 +1,0 @@
-ALTER TABLE `plans` ADD `priceAnnual` int DEFAULT 0 NOT NULL;

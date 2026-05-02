@@ -16,6 +16,7 @@ import {
   MessageSquare,
   Radio,
   Settings,
+  Shield,
   Users,
   Zap,
 } from "lucide-react";
@@ -66,6 +67,19 @@ const navItems = [
       { href: "/channels", icon: MessageSquare, label: "Canais" },
       { href: "/plans", icon: CreditCard, label: "Planos" },
       { href: "/settings", icon: Settings, label: "Configurações" },
+    ],
+  },
+];
+
+const adminNavItems = [
+  {
+    group: "Administração",
+    items: [
+      { href: "/admin/dashboard", icon: Shield, label: "Painel Admin" },
+      { href: "/admin/users", icon: Users, label: "Usuários" },
+      { href: "/admin/plans", icon: CreditCard, label: "Planos" },
+      { href: "/admin/stripe", icon: CreditCard, label: "Stripe" },
+      { href: "/admin/settings", icon: Settings, label: "Configurações" },
     ],
   },
 ];
@@ -130,6 +144,73 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1">
+          {/* Admin Menu */}
+          {user?.role === "admin" && (
+            <>
+              {adminNavItems.map((group) => (
+                <div key={group.group} className="mb-4">
+                  {!collapsed && (
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-2">
+                      {group.group}
+                    </p>
+                  )}
+                  {group.items.map((item) => {
+                    const isActive =
+                      location === item.href ||
+                      (item.href !== "/admin/dashboard" && location.startsWith(item.href));
+                    return (
+                      <Tooltip key={item.href} delayDuration={0}>
+                        <TooltipTrigger asChild>
+                          <Link href={item.href}>
+                            <div
+                              className={cn(
+                                "flex items-center gap-3 px-2 py-2 rounded-lg text-sm font-medium transition-all duration-150 group",
+                                isActive
+                                  ? "bg-primary/15 text-primary"
+                                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-foreground",
+                                collapsed && "justify-center"
+                              )}
+                            >
+                              <item.icon
+                                className={cn(
+                                  "flex-shrink-0 h-4 w-4 transition-colors",
+                                  isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                                )}
+                              />
+                              {!collapsed && (
+                                <>
+                                  <span className="flex-1">{item.label}</span>
+                                  {(item as any).badge && (
+                                    <Badge
+                                      variant="default"
+                                      className="h-5 px-1.5 text-xs gradient-primary text-white border-0"
+                                    >
+                                      {(item as any).badge}
+                                    </Badge>
+                                  )}
+                                </>
+                              )}
+                              {isActive && (
+                                <div className="absolute left-0 w-0.5 h-6 bg-primary rounded-r-full" />
+                              )}
+                            </div>
+                          </Link>
+                        </TooltipTrigger>
+                        {collapsed && (
+                          <TooltipContent side="right" className="bg-popover border-border">
+                            {item.label}
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    );
+                  })}
+                </div>
+              ))}
+              <Separator className="my-2" />
+            </>
+          )}
+
+          {/* Regular Menu */}
           {navItems.map((group) => (
             <div key={group.group} className="mb-4">
               {!collapsed && (
@@ -257,13 +338,24 @@ export default function AppLayout({ children }: AppLayoutProps) {
         <header className="h-14 border-b border-border flex items-center justify-between px-6 bg-background/80 backdrop-blur-sm flex-shrink-0">
           <div className="flex items-center gap-2">
             <h1 className="text-sm font-semibold text-foreground">
-              {navItems
-                .flatMap((g) => g.items)
-                .find(
-                  (i) =>
-                    location === i.href ||
-                    (i.href !== "/dashboard" && location.startsWith(i.href))
-                )?.label || "Dashboard"}
+              {user?.role === "admin"
+                ? adminNavItems
+                    .flatMap((g) => g.items)
+                    .find(
+                      (i) =>
+                        location === i.href ||
+                        (i.href !== "/admin/dashboard" && location.startsWith(i.href))
+                    )?.label
+                : null}
+              {user?.role !== "admin" || !location.startsWith("/admin")
+                ? navItems
+                    .flatMap((g) => g.items)
+                    .find(
+                      (i) =>
+                        location === i.href ||
+                        (i.href !== "/dashboard" && location.startsWith(i.href))
+                    )?.label
+                : null}
             </h1>
           </div>
           <div className="flex items-center gap-2">

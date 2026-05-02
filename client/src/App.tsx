@@ -19,6 +19,11 @@ import Plans from "./pages/Plans";
 import AIPage from "./pages/AIPage";
 import Settings from "./pages/Settings";
 import Integrations from "./pages/Integrations";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminUsers from "./pages/AdminUsers";
+import AdminPlans from "./pages/AdminPlans";
+import AdminStripe from "./pages/AdminStripe";
+import AdminSettings from "./pages/AdminSettings";
 
 function Router() {
   return (
@@ -39,6 +44,11 @@ function Router() {
       <Route path="/ai" component={AIPage} />
       <Route path="/settings" component={Settings} />
       <Route path="/integrations" component={Integrations} />
+      <Route path="/admin/dashboard" component={AdminDashboard} />
+      <Route path="/admin/users" component={AdminUsers} />
+      <Route path="/admin/plans" component={AdminPlans} />
+      <Route path="/admin/stripe" component={AdminStripe} />
+      <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

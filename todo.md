@@ -89,3 +89,16 @@
 - [x] Integrar Stripe para pagamento
 - [x] Criar endpoint de checkout
 - [x] Testar fluxo completo de pagamento
+
+
+## Fase 11: Painel Administrativo Completo
+- [ ] Criar routers de administração com verificação de role admin
+- [ ] Criar página de Admin Dashboard com estatísticas
+- [ ] Criar gerenciamento de usuários (listar, editar, deletar, promover admin)
+- [ ] Criar gerenciamento de planos (criar, editar, deletar)
+- [ ] Criar gerenciamento de Stripe (chaves, webhooks, configurações)
+- [ ] Criar página de configurações gerais do site
+- [ ] Criar página de segurança e auditoria
+- [ ] Adicionar menu de admin no AppLayout
+- [ ] Proteger rotas de admin com verificação de role
+- [ ] Testar acesso restrito ao painel admin

@@ -15,6 +15,7 @@ import { templatesRouter } from "./routers/templates";
 import { mediaRouter } from "./routers/media";
 import { aiRouter } from "./routers/ai";
 import { oauthRouter } from "./routers/oauth";
+import { adminRouter } from "./routers/admin";
 
 export const appRouter = router({
   system: systemRouter,
@@ -39,6 +40,7 @@ export const appRouter = router({
   media: mediaRouter,
   ai: aiRouter,
   oauth: oauthRouter,
+  admin: adminRouter,
 });
 
 export type AppRouter = typeof appRouter;

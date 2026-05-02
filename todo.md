@@ -92,13 +92,13 @@
 
 
 ## Fase 11: Painel Administrativo Completo
-- [ ] Criar routers de administração com verificação de role admin
-- [ ] Criar página de Admin Dashboard com estatísticas
-- [ ] Criar gerenciamento de usuários (listar, editar, deletar, promover admin)
-- [ ] Criar gerenciamento de planos (criar, editar, deletar)
-- [ ] Criar gerenciamento de Stripe (chaves, webhooks, configurações)
-- [ ] Criar página de configurações gerais do site
-- [ ] Criar página de segurança e auditoria
-- [ ] Adicionar menu de admin no AppLayout
-- [ ] Proteger rotas de admin com verificação de role
-- [ ] Testar acesso restrito ao painel admin
+- [x] Criar routers de administração com verificação de role admin
+- [x] Criar página de Admin Dashboard com estatísticas
+- [x] Criar gerenciamento de usuários (listar, editar, deletar, promover admin)
+- [x] Criar gerenciamento de planos (criar, editar, deletar)
+- [x] Criar gerenciamento de Stripe (chaves, webhooks, configurações)
+- [x] Criar página de configurações gerais do site
+- [x] Criar página de segurança e auditoria
+- [x] Adicionar menu de admin no AppLayout
+- [x] Proteger rotas de admin com verificação de role
+- [x] Testar acesso restrito ao painel admin

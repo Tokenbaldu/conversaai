@@ -6,7 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Trash2, Edit2, AlertCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Loader2, Trash2, Edit2, AlertCircle, Shield, ShieldOff } from "lucide-react";
 import { useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -15,6 +17,8 @@ export default function AdminUsers() {
   const { user, loading } = useAuth();
   const [, setLocation] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [editingRole, setEditingRole] = useState<"admin" | "user">("user");
 
   const { data: usersData, isLoading, refetch } = trpc.admin.listUsers.useQuery(
     { limit: 50, offset: 0 },
@@ -28,6 +32,17 @@ export default function AdminUsers() {
     },
     onError: (error) => {
       toast.error(error.message || "Erro ao deletar usuário");
+    },
+  });
+
+  const updateUserMutation = trpc.admin.updateUser.useMutation({
+    onSuccess: () => {
+      toast.success("Usuário atualizado com sucesso");
+      setEditingUser(null);
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao atualizar usuário");
     },
   });
 
@@ -130,9 +145,35 @@ export default function AdminUsers() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => toast.info("Edição em desenvolvimento")}
+                              onClick={() => {
+                                setEditingUser(u);
+                                setEditingRole(u.role);
+                              }}
                             >
                               <Edit2 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                if (u.id === user.id) {
+                                  toast.error("Você não pode rebaixar sua própria conta");
+                                  return;
+                                }
+                                const newRole = u.role === "admin" ? "user" : "admin";
+                                updateUserMutation.mutate({
+                                  userId: u.id,
+                                  role: newRole,
+                                });
+                              }}
+                              disabled={updateUserMutation.isPending || u.id === user.id}
+                              title={u.role === "admin" ? "Rebaixar para usuário" : "Promover para admin"}
+                            >
+                              {u.role === "admin" ? (
+                                <ShieldOff className="w-4 h-4" />
+                              ) : (
+                                <Shield className="w-4 h-4" />
+                              )}
                             </Button>
                             <Button
                               variant="destructive"
@@ -157,6 +198,75 @@ export default function AdminUsers() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Dialog de Edição */}
+      <Dialog open={!!editingUser} onOpenChange={(open) => !open && setEditingUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Usuário</DialogTitle>
+            <DialogDescription>
+              Atualize as informações do usuário
+            </DialogDescription>
+          </DialogHeader>
+          {editingUser && (
+            <div className="space-y-4">
+              <div>
+                <Label>Nome</Label>
+                <Input
+                  value={editingUser.name || ""}
+                  onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                  placeholder="Nome do usuário"
+                />
+              </div>
+              <div>
+                <Label>Email</Label>
+                <Input
+                  value={editingUser.email || ""}
+                  onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                  placeholder="Email do usuário"
+                  type="email"
+                />
+              </div>
+              <div>
+                <Label>Role</Label>
+                <Select value={editingRole} onValueChange={(value) => setEditingRole(value as "admin" | "user")}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="user">Usuário</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => setEditingUser(null)}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={() => {
+                    updateUserMutation.mutate({
+                      userId: editingUser.id,
+                      name: editingUser.name,
+                      email: editingUser.email,
+                      role: editingRole,
+                    });
+                  }}
+                  disabled={updateUserMutation.isPending}
+                >
+                  {updateUserMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : null}
+                  Salvar
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

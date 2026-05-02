@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Edit2, AlertCircle } from "lucide-react";
+import { Loader2, Edit2, AlertCircle, Plus, Trash2 } from "lucide-react";
 import { useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -15,6 +15,17 @@ export default function AdminPlans() {
   const { user, loading } = useAuth();
   const [, setLocation] = useLocation();
   const [editingPlan, setEditingPlan] = useState<any>(null);
+  const [creatingPlan, setCreatingPlan] = useState(false);
+  const [newPlanData, setNewPlanData] = useState({
+    name: "",
+    priceMonthly: 0,
+    priceAnnual: 0,
+    maxContacts: 100,
+    maxFlows: 3,
+    maxBroadcasts: 1,
+    maxChannels: 1,
+    aiEnabled: false,
+  });
 
   const { data: plans, isLoading, refetch } = trpc.admin.listPlans.useQuery(undefined, {
     enabled: !!user && user.role === "admin",
@@ -28,6 +39,37 @@ export default function AdminPlans() {
     },
     onError: (error) => {
       toast.error(error.message || "Erro ao atualizar plano");
+    },
+  });
+
+  const createPlanMutation = trpc.admin.createPlan.useMutation({
+    onSuccess: () => {
+      toast.success("Plano criado com sucesso");
+      setCreatingPlan(false);
+      setNewPlanData({
+        name: "",
+        priceMonthly: 0,
+        priceAnnual: 0,
+        maxContacts: 100,
+        maxFlows: 3,
+        maxBroadcasts: 1,
+        maxChannels: 1,
+        aiEnabled: false,
+      });
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao criar plano");
+    },
+  });
+
+  const deletePlanMutation = trpc.admin.deletePlan.useMutation({
+    onSuccess: () => {
+      toast.success("Plano deletado com sucesso");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao deletar plano");
     },
   });
 
@@ -75,8 +117,43 @@ export default function AdminPlans() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Planos de Assinatura</CardTitle>
-            <CardDescription>Total: {plans?.length || 0} planos</CardDescription>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle>Planos de Assinatura</CardTitle>
+                <CardDescription>Total: {plans?.length || 0} planos</CardDescription>
+              </div>
+              <Dialog open={creatingPlan} onOpenChange={setCreatingPlan}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Novo Plano
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Criar Novo Plano</DialogTitle>
+                    <DialogDescription>Adicione um novo plano de assinatura</DialogDescription>
+                  </DialogHeader>
+                  <CreatePlanForm
+                    data={newPlanData}
+                    onChange={setNewPlanData}
+                    onSubmit={() => {
+                      createPlanMutation.mutate({
+                        name: newPlanData.name,
+                        priceMonthly: Math.round(newPlanData.priceMonthly * 100),
+                        priceAnnual: Math.round(newPlanData.priceAnnual * 100),
+                        maxContacts: newPlanData.maxContacts,
+                        maxFlows: newPlanData.maxFlows,
+                        maxBroadcasts: newPlanData.maxBroadcasts,
+                        maxChannels: newPlanData.maxChannels,
+                        aiEnabled: newPlanData.aiEnabled,
+                      });
+                    }}
+                    isLoading={createPlanMutation.isPending}
+                  />
+                </DialogContent>
+              </Dialog>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -109,29 +186,43 @@ export default function AdminPlans() {
                         <TableCell>{plan.maxFlows}</TableCell>
                         <TableCell>{plan.aiEnabled ? "Sim" : "Não"}</TableCell>
                         <TableCell>
-                          <Dialog open={editingPlan?.id === plan.id} onOpenChange={(open) => !open && setEditingPlan(null)}>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" onClick={() => setEditingPlan(plan)}>
-                                <Edit2 className="w-4 h-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Editar Plano: {plan.name}</DialogTitle>
-                                <DialogDescription>Atualize os detalhes do plano</DialogDescription>
-                              </DialogHeader>
-                              <EditPlanForm
-                                plan={editingPlan || plan}
-                                onSubmit={(data: any) => {
-                                  updatePlanMutation.mutate({
-                                    planId: plan.id,
-                                    ...data,
-                                  });
-                                }}
-                                isLoading={updatePlanMutation.isPending}
-                              />
-                            </DialogContent>
-                          </Dialog>
+                          <div className="flex gap-2">
+                            <Dialog open={editingPlan?.id === plan.id} onOpenChange={(open) => !open && setEditingPlan(null)}>
+                              <DialogTrigger asChild>
+                                <Button variant="outline" size="sm" onClick={() => setEditingPlan(plan)}>
+                                  <Edit2 className="w-4 h-4" />
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>Editar Plano: {plan.name}</DialogTitle>
+                                  <DialogDescription>Atualize os detalhes do plano</DialogDescription>
+                                </DialogHeader>
+                                <EditPlanForm
+                                  plan={editingPlan || plan}
+                                  onSubmit={(data: any) => {
+                                    updatePlanMutation.mutate({
+                                      planId: plan.id,
+                                      ...data,
+                                    });
+                                  }}
+                                  isLoading={updatePlanMutation.isPending}
+                                />
+                              </DialogContent>
+                            </Dialog>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => {
+                                if (confirm("Tem certeza que deseja deletar este plano?")) {
+                                  deletePlanMutation.mutate({ planId: plan.id });
+                                }
+                              }}
+                              disabled={deletePlanMutation.isPending}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))
@@ -143,6 +234,106 @@ export default function AdminPlans() {
         </Card>
       </div>
     </div>
+  );
+}
+
+function CreatePlanForm({ data, onChange, onSubmit, isLoading }: any) {
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!data.name.trim()) {
+          toast.error("Nome do plano é obrigatório");
+          return;
+        }
+        onSubmit();
+      }}
+      className="space-y-4"
+    >
+      <div>
+        <Label>Nome do Plano</Label>
+        <Input
+          value={data.name}
+          onChange={(e) => onChange({ ...data, name: e.target.value })}
+          placeholder="Ex: Premium"
+          required
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label>Preço Mensal (R$)</Label>
+          <Input
+            type="number"
+            step="0.01"
+            value={data.priceMonthly}
+            onChange={(e) => onChange({ ...data, priceMonthly: parseFloat(e.target.value) })}
+          />
+        </div>
+        <div>
+          <Label>Preço Anual (R$)</Label>
+          <Input
+            type="number"
+            step="0.01"
+            value={data.priceAnnual}
+            onChange={(e) => onChange({ ...data, priceAnnual: parseFloat(e.target.value) })}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label>Max Contatos</Label>
+          <Input
+            type="number"
+            value={data.maxContacts}
+            onChange={(e) => onChange({ ...data, maxContacts: parseInt(e.target.value) })}
+          />
+        </div>
+        <div>
+          <Label>Max Fluxos</Label>
+          <Input
+            type="number"
+            value={data.maxFlows}
+            onChange={(e) => onChange({ ...data, maxFlows: parseInt(e.target.value) })}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label>Max Broadcasts</Label>
+          <Input
+            type="number"
+            value={data.maxBroadcasts}
+            onChange={(e) => onChange({ ...data, maxBroadcasts: parseInt(e.target.value) })}
+          />
+        </div>
+        <div>
+          <Label>Max Canais</Label>
+          <Input
+            type="number"
+            value={data.maxChannels}
+            onChange={(e) => onChange({ ...data, maxChannels: parseInt(e.target.value) })}
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          id="aiEnabled"
+          checked={data.aiEnabled}
+          onChange={(e) => onChange({ ...data, aiEnabled: e.target.checked })}
+        />
+        <Label htmlFor="aiEnabled">IA Habilitada</Label>
+      </div>
+
+      <Button type="submit" disabled={isLoading} className="w-full">
+        {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+        Criar Plano
+      </Button>
+    </form>
   );
 }
 

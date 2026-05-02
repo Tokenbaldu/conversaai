@@ -262,3 +262,21 @@ export const analyticsEvents = mysqlTable("analytics_events", {
 });
 
 export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
+
+// ─── Audit Log ───────────────────────────────────────────────────────────────
+export const auditLogs = mysqlTable("audit_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  adminId: int("adminId").notNull(), // ID do admin que realizou a ação
+  action: varchar("action", { length: 64 }).notNull(), // create_plan, update_plan, delete_plan, update_user, delete_user, etc.
+  entityType: varchar("entityType", { length: 64 }).notNull(), // plan, user, stripe_config, site_settings, etc.
+  entityId: int("entityId"), // ID da entidade afetada
+  changes: json("changes"), // Mudanças realizadas (antes/depois)
+  ipAddress: varchar("ipAddress", { length: 45 }), // IPv4 ou IPv6
+  userAgent: text("userAgent"), // Browser/client info
+  status: mysqlEnum("status", ["success", "failed"]).default("success").notNull(),
+  errorMessage: text("errorMessage"), // Mensagem de erro se falhou
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type InsertAuditLog = typeof auditLogs.$inferInsert;

@@ -1,6 +1,6 @@
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { users, plans, userPlans, channels, flows, contacts, automations, broadcasts, analyticsEvents } from "../../drizzle/schema";
+import { users, plans, userPlans, channels, flows, contacts, automations, broadcasts, analyticsEvents, auditLogs } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -178,6 +178,59 @@ export const adminRouter = router({
       return { success: true };
     }),
 
+  createPlan: adminProcedure
+    .input(
+      z.object({
+        name: z.string().min(1, "Nome é obrigatório"),
+        maxContacts: z.number().default(100),
+        maxFlows: z.number().default(3),
+        maxBroadcasts: z.number().default(1),
+        maxChannels: z.number().default(1),
+        aiEnabled: z.boolean().default(false),
+        whitelabelEnabled: z.boolean().default(false),
+        priceMonthly: z.number().default(0),
+        priceAnnual: z.number().default(0),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("DB unavailable");
+
+      const [result] = await db.insert(plans).values({
+        name: input.name,
+        maxContacts: input.maxContacts,
+        maxFlows: input.maxFlows,
+        maxBroadcasts: input.maxBroadcasts,
+        maxChannels: input.maxChannels,
+        aiEnabled: input.aiEnabled,
+        whitelabelEnabled: input.whitelabelEnabled,
+        priceMonthly: input.priceMonthly,
+        priceAnnual: input.priceAnnual,
+      });
+
+      return { success: true, planId: result.insertId };
+    }),
+
+  deletePlan: adminProcedure
+    .input(z.object({ planId: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("DB unavailable");
+
+      // Verificar se há usuários com este plano
+      const usersWithPlan = await db.select().from(userPlans).where(eq(userPlans.planId, input.planId));
+      if (usersWithPlan.length > 0) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "Não é possível deletar um plano que está em uso",
+        });
+      }
+
+      await db.delete(plans).where(eq(plans.id, input.planId));
+
+      return { success: true };
+    }),
+
   // ─── CONFIGURAÇÕES STRIPE ───────────────────────────────────────────────
   getStripeSettings: adminProcedure.query(async () => {
     // Retorna informações sobre as chaves Stripe configuradas
@@ -267,6 +320,72 @@ export const adminRouter = router({
         events,
         total: events.length,
       };
+    }),
+
+  // ─── AUDITORIA ───────────────────────────────────────────────────────────
+  getAuditLogs: adminProcedure
+    .input(
+      z.object({
+        limit: z.number().default(50),
+        offset: z.number().default(0),
+        action: z.string().optional(),
+        entityType: z.string().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("DB unavailable");
+
+      const allLogs = await db.select().from(auditLogs);
+      const filteredLogs = allLogs.filter((log) => {
+        if (input.action && log.action !== input.action) return false;
+        if (input.entityType && log.entityType !== input.entityType) return false;
+        return true;
+      });
+
+      const paginatedLogs = filteredLogs
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(input.offset, input.offset + input.limit);
+
+      return {
+        logs: paginatedLogs,
+        total: filteredLogs.length,
+        limit: input.limit,
+        offset: input.offset,
+      };
+    }),
+
+  logAuditEvent: adminProcedure
+    .input(
+      z.object({
+        action: z.string(),
+        entityType: z.string(),
+        entityId: z.number().optional(),
+        changes: z.any().optional(),
+        status: z.enum(["success", "failed"]).default("success"),
+        errorMessage: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new Error("DB unavailable");
+
+      const ipAddress = (ctx.req.headers["x-forwarded-for"] as string)?.split(",")[0] || (ctx.req.socket?.remoteAddress as string) || "unknown";
+      const userAgent = (ctx.req.headers["user-agent"] as string) || "unknown";
+
+      await db.insert(auditLogs).values({
+        adminId: ctx.user.id,
+        action: input.action,
+        entityType: input.entityType,
+        entityId: input.entityId,
+        changes: input.changes ? JSON.stringify(input.changes) : null,
+        ipAddress,
+        userAgent,
+        status: input.status,
+        errorMessage: input.errorMessage,
+      });
+
+      return { success: true };
     }),
 
   // ─── NOTIFICAÇÕES ───────────────────────────────────────────────────────

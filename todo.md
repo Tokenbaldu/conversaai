@@ -118,3 +118,10 @@
 - [x] Adicionar botão de voltar em todas as páginas
 - [x] Implementar hook useGoBack para navegação
 - [x] Testar navegação em todas as rotas
+
+
+## Fase 14: Melhorar Visibilidade da Seta de Retorno
+- [x] Tornar seta de retorno mais visível e destacada
+- [ ] Adicionar seta de retorno em páginas principais (não apenas admin)
+- [x] Estilizar seta com hover effects e transições
+- [x] Testar visibilidade em todos os breakpoints

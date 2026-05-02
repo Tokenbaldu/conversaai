@@ -66,23 +66,26 @@ export default function AdminDatabase() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Back Button - Fixed at top left */}
+      <div className="fixed top-4 left-4 z-50">
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={goBack}
+          className="bg-white dark:bg-slate-900 border-2 border-blue-500 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900 hover:text-blue-600 shadow-lg transition-all duration-200 flex items-center gap-2"
+        >
+          <ArrowLeft className="h-5 w-5" />
+          <span className="hidden sm:inline font-semibold">Voltar</span>
+        </Button>
+      </div>
+      
       <div className="container mx-auto py-8">
-        <div className="mb-8 flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={goBack}
-            className="hover:bg-secondary"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
-              <Database className="w-8 h-8" />
-              Gerenciamento de Banco de Dados
-            </h1>
-            <p className="text-gray-500">Visualize, edite e gerencie os dados da plataforma</p>
-          </div>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
+            <Database className="w-8 h-8" />
+            Gerenciamento de Banco de Dados
+          </h1>
+          <p className="text-gray-500">Visualize, edite e gerencie os dados da plataforma</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">

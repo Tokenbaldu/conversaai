@@ -37,6 +37,7 @@ export const plans = mysqlTable("plans", {
   aiEnabled: boolean("aiEnabled").notNull().default(false),
   whitelabelEnabled: boolean("whitelabelEnabled").notNull().default(false),
   priceMonthly: int("priceMonthly").notNull().default(0), // cents
+  priceAnnual: int("priceAnnual").notNull().default(0), // cents
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

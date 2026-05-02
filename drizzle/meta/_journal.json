@@ -15,6 +15,13 @@
       "when": 1777741969334,
       "tag": "0001_complete_manta",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1777747896648,
+      "tag": "0002_quick_triton",
+      "breakpoints": true
     }
   ]
 }

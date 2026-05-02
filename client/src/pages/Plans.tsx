@@ -2,6 +2,7 @@ import AppLayout from "@/components/AppLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import {
@@ -11,6 +12,7 @@ import {
   Star,
   Zap,
 } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 const planIcons: Record<string, any> = {
@@ -55,20 +57,44 @@ const planFeatures: Record<string, string[]> = {
   ],
 };
 
+// Preços atualizados
+const planPrices: Record<string, { monthly: number; annual: number }> = {
+  Free: { monthly: 0, annual: 0 },
+  Pro: { monthly: 75, annual: 750 },
+  Agency: { monthly: 130, annual: 1300 },
+};
+
 export default function Plans() {
   const { user } = useAuth();
+  const [isAnnual, setIsAnnual] = useState(false);
   const { data: plans = [], isLoading } = trpc.plans.list.useQuery();
   const { data: currentPlan } = trpc.plans.current.useQuery();
   const subscribePlan = trpc.plans.subscribe.useMutation();
+  const createCheckout = trpc.plans.createCheckout.useMutation();
   const utils = trpc.useUtils();
 
   const handleUpgrade = async (planId: number, planName: string) => {
     try {
-      await subscribePlan.mutateAsync({ planId });
-      utils.plans.current.invalidate();
-      toast.success(`Plano ${planName} ativado com sucesso!`);
-    } catch {
-      toast.error("Erro ao atualizar plano");
+      // Se for plano Free, apenas subscribe
+      if (planName === "Free") {
+        await subscribePlan.mutateAsync({ planId });
+        utils.plans.current.invalidate();
+        toast.success("Plano Free ativado com sucesso!");
+        return;
+      }
+
+      // Para planos pagos, criar checkout do Stripe
+      const billingPeriod = isAnnual ? "annual" : "monthly";
+      const result = await createCheckout.mutateAsync({
+        planId,
+        billingPeriod: billingPeriod as "monthly" | "annual",
+      });
+
+      if (result.checkoutUrl) {
+        window.location.href = result.checkoutUrl;
+      }
+    } catch (error) {
+      toast.error("Erro ao processar pagamento");
     }
   };
 
@@ -79,6 +105,22 @@ export default function Plans() {
         <div className="text-center max-w-2xl mx-auto">
           <h1 className="text-3xl font-bold text-foreground mb-3">Escolha seu plano</h1>
           <p className="text-muted-foreground">Escale sua automação de marketing com o plano ideal para o seu negócio</p>
+        </div>
+
+        {/* Billing Toggle */}
+        <div className="flex items-center justify-center gap-4 max-w-md mx-auto bg-secondary/30 rounded-xl p-4 border border-border">
+          <span className={`text-sm font-medium ${!isAnnual ? "text-foreground" : "text-muted-foreground"}`}>
+            Mensal
+          </span>
+          <Switch checked={isAnnual} onCheckedChange={setIsAnnual} />
+          <span className={`text-sm font-medium ${isAnnual ? "text-foreground" : "text-muted-foreground"}`}>
+            Anual
+          </span>
+          {isAnnual && (
+            <Badge className="bg-emerald-400/15 text-emerald-400 border-0 text-xs ml-2">
+              Economize 17%
+            </Badge>
+          )}
         </div>
 
         {/* Current Plan */}
@@ -107,6 +149,9 @@ export default function Plans() {
               const isCurrent = currentPlan?.plan?.id === plan.id;
               const isPro = plan.name === "Pro";
               const isAgency = plan.name === "Agency";
+              const prices = planPrices[plan.name] || { monthly: 0, annual: 0 };
+              const displayPrice = isAnnual ? prices.annual : prices.monthly;
+              const annualSavings = isAnnual && prices.annual > 0 ? Math.round((1 - prices.annual / (prices.monthly * 12)) * 100) : 0;
 
               return (
                 <Card
@@ -134,11 +179,19 @@ export default function Plans() {
                     <h2 className="text-xl font-bold text-foreground">{plan.name}</h2>
                     <div className="flex items-baseline gap-1 mt-2">
                       <span className="text-3xl font-bold text-foreground">
-                        {plan.priceMonthly === 0 ? "Grátis" : `R$ ${Number(plan.priceMonthly).toFixed(0)}`}
+                        {displayPrice === 0 ? "Grátis" : `R$ ${displayPrice.toFixed(0)}`}
                       </span>
-                      {plan.priceMonthly > 0 && <span className="text-muted-foreground text-sm">/mês</span>}
+                      {displayPrice > 0 && (
+                        <span className="text-muted-foreground text-sm">
+                          /{isAnnual ? "ano" : "mês"}
+                        </span>
+                      )}
                     </div>
-
+                    {annualSavings > 0 && (
+                      <p className="text-xs text-emerald-400 mt-1">
+                        Economize {annualSavings}% com plano anual
+                      </p>
+                    )}
                   </CardHeader>
 
                   <CardContent className="space-y-4">
@@ -153,10 +206,18 @@ export default function Plans() {
                           : "border-border"
                       }`}
                       variant={isCurrent || (!isPro && !isAgency) ? "outline" : "default"}
-                      disabled={isCurrent || subscribePlan.isPending}
+                      disabled={isCurrent || subscribePlan.isPending || createCheckout.isPending}
                       onClick={() => !isCurrent && handleUpgrade(plan.id, plan.name)}
                     >
-                      {isCurrent ? "Plano atual" : plan.priceMonthly === 0 ? "Começar grátis" : `Assinar ${plan.name}`}
+                      {isCurrent ? (
+                        "Plano atual"
+                      ) : plan.name === "Free" ? (
+                        "Começar grátis"
+                      ) : createCheckout.isPending ? (
+                        "Processando..."
+                      ) : (
+                        `Assinar com Stripe`
+                      )}
                     </Button>
 
                     <div className="space-y-2.5">
@@ -180,7 +241,8 @@ export default function Plans() {
         <div className="max-w-2xl mx-auto space-y-4">
           <h2 className="text-lg font-semibold text-foreground text-center">Perguntas frequentes</h2>
           {[
-            { q: "Posso mudar de plano a qualquer momento?", a: "Sim! Você pode fazer upgrade ou downgrade do seu plano a qualquer momento sem custos adicionais." },
+            { q: "Como funciona o pagamento?", a: "Usamos Stripe para processar pagamentos de forma segura. Você pode pagar com cartão de crédito ou débito." },
+            { q: "Posso mudar de plano a qualquer momento?", a: "Sim! Você pode fazer upgrade ou downgrade do seu plano a qualquer momento. A mudança é processada imediatamente." },
             { q: "O que acontece quando atinjo o limite do plano?", a: "Você receberá uma notificação quando estiver próximo do limite. Após atingir, as automações serão pausadas até o próximo ciclo ou upgrade." },
             { q: "Existe período de teste gratuito?", a: "O plano Free é gratuito para sempre com recursos limitados. Os planos pagos oferecem 14 dias de teste sem cartão de crédito." },
           ].map((item) => (

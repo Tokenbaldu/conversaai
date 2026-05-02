@@ -81,3 +81,11 @@
 - [x] Implementar OAuth flow para Facebook Messenger
 - [x] Criar testes para validar integração de canais (19 testes)
 - [x] Testar fluxo completo de autenticação
+
+
+## Fase 10: Sistema de Pagamento com Stripe
+- [x] Atualizar preços dos planos (Pro: 75/750, Agency: 130/1300)
+- [x] Adicionar botão para escolher tipo de plano (mensal/anual)
+- [x] Integrar Stripe para pagamento
+- [x] Criar endpoint de checkout
+- [ ] Testar fluxo completo de pagamento

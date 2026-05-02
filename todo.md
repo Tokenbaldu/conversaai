@@ -102,3 +102,13 @@
 - [x] Adicionar menu de admin no AppLayout
 - [x] Proteger rotas de admin com verificação de role
 - [x] Testar acesso restrito ao painel admin
+
+
+## Fase 12: Integração PagBank e Acesso ao Banco de Dados
+- [x] Adicionar botão de acesso ao banco de dados no painel admin
+- [x] Implementar página de gerenciamento do banco de dados
+- [x] Integrar PagBank como meio de pagamento alternativo
+- [x] Adicionar configurações do PagBank no painel admin
+- [x] Criar routers PagBank para checkout
+- [x] Testar fluxo completo de pagamento com PagBank
+- [ ] Adicionar botão de PagBank na página de planos

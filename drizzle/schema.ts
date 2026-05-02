@@ -280,3 +280,41 @@ export const auditLogs = mysqlTable("audit_logs", {
 
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type InsertAuditLog = typeof auditLogs.$inferInsert;
+
+// ─── PagBank Configuration ───────────────────────────────────────────────────
+export const pagbankConfigs = mysqlTable("pagbank_configs", {
+  id: int("id").autoincrement().primaryKey(),
+  integrationKey: text("integrationKey"), // Chave de integração do PagBank
+  accessToken: text("accessToken"), // Token de acesso
+  webhookUrl: varchar("webhookUrl", { length: 500 }), // URL do webhook
+  webhookSecret: text("webhookSecret"), // Secret para validar webhooks
+  isActive: boolean("isActive").default(false).notNull(),
+  lastTestAt: timestamp("lastTestAt"), // Última vez que a conexão foi testada
+  testStatus: mysqlEnum("testStatus", ["success", "failed", "pending"]).default("pending"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type PagBankConfig = typeof pagbankConfigs.$inferSelect;
+export type InsertPagBankConfig = typeof pagbankConfigs.$inferInsert;
+
+// ─── PagBank Transactions ────────────────────────────────────────────────────
+export const pagbankTransactions = mysqlTable("pagbank_transactions", {
+  id: int("id").autoincrement().primaryKey(),
+  transactionId: varchar("transactionId", { length: 64 }).notNull().unique(), // ID do PagBank
+  userId: int("userId").notNull(),
+  planId: int("planId"),
+  amount: int("amount").notNull(), // em centavos
+  currency: varchar("currency", { length: 3 }).default("BRL").notNull(),
+  status: mysqlEnum("status", ["pending", "success", "failed", "refunded"]).default("pending").notNull(),
+  paymentMethod: varchar("paymentMethod", { length: 32 }), // credit_card, debit_card, pix, etc.
+  description: text("description"),
+  metadata: json("metadata"), // Dados adicionais
+  errorMessage: text("errorMessage"), // Mensagem de erro se falhou
+  processedAt: timestamp("processedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PagBankTransaction = typeof pagbankTransactions.$inferSelect;
+export type InsertPagBankTransaction = typeof pagbankTransactions.$inferInsert;

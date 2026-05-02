@@ -88,4 +88,4 @@
 - [x] Adicionar botão para escolher tipo de plano (mensal/anual)
 - [x] Integrar Stripe para pagamento
 - [x] Criar endpoint de checkout
-- [ ] Testar fluxo completo de pagamento
+- [x] Testar fluxo completo de pagamento

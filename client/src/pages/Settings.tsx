@@ -19,7 +19,6 @@ import {
   Shield,
   Sun,
   User,
-  ArrowLeft
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

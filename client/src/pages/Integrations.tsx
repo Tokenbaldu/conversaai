@@ -12,7 +12,6 @@ import {
   Plus,
   Trash2,
   X,
-  ArrowLeft
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

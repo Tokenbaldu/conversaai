@@ -25,7 +25,6 @@ import {
   Radio,
   TrendingUp,
   Users,
-  ArrowLeft
 } from "lucide-react";
 import { useState } from "react";
 

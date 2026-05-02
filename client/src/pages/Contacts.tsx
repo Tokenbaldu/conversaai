@@ -23,9 +23,7 @@ import {
   Trash2,
   User,
   Users,
-  ArrowLeft
 } from "lucide-react";
-import { useGoBack } from "@/hooks/useGoBack";
 import { useState } from "react";
 import { toast } from "sonner";
 

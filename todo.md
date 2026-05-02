@@ -122,6 +122,6 @@
 
 ## Fase 14: Melhorar Visibilidade da Seta de Retorno
 - [x] Tornar seta de retorno mais visível e destacada
-- [x] Adicionar seta de retorno em TODAS as páginas do site inteiro
+- [ ] Adicionar seta de retorno em páginas principais (não apenas admin)
 - [x] Estilizar seta com hover effects e transições
 - [x] Testar visibilidade em todos os breakpoints

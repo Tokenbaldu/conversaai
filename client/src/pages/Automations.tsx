@@ -19,7 +19,6 @@ import {
   Trash2,
   UserPlus,
   Zap,
-  ArrowLeft
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

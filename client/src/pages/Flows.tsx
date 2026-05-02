@@ -15,9 +15,7 @@ import {
   Search,
   Trash2,
   Zap,
-  ArrowLeft
 } from "lucide-react";
-import { useGoBack } from "@/hooks/useGoBack";
 import { useState } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
@@ -38,7 +36,6 @@ const triggerLabels: Record<string, string> = {
 };
 
 export default function Flows() {
-  const goBack = useGoBack();
   const [search, setSearch] = useState("");
   const { data: flows = [], isLoading } = trpc.flows.list.useQuery();
   const updateFlow = trpc.flows.update.useMutation();

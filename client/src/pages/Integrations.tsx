@@ -70,6 +70,8 @@ export default function Integrations() {
   const [showAuthModal, setShowAuthModal] = useState<string | undefined>(undefined);
   const [authData, setAuthData] = useState<Record<string, string>>({});
 
+
+
   // Criar um mapa de canais por tipo, mantendo apenas o primeiro de cada tipo
   const connectedChannels: Record<string, Channel> = {};
   channels.forEach((ch: Channel) => {
@@ -77,6 +79,7 @@ export default function Integrations() {
       connectedChannels[ch.type] = ch;
     }
   });
+
   
   // Também criar um mapa por ID para referência rápida
   const channelsById: Record<number, Channel> = {};
@@ -110,12 +113,11 @@ export default function Integrations() {
       if (!channelId || typeof channelId !== 'number') {
         throw new Error(`ID invalido: ${channelId}`);
       }
-      const result = await deleteChannel.mutateAsync({ id: channelId });
+      await deleteChannel.mutateAsync({ id: channelId });
       await utils.channels.list.invalidate();
       toast.success("Canal desconectado com sucesso!");
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
-      console.error('Erro ao desconectar:', msg);
       toast.error(`Erro ao desconectar: ${msg}`);
     }
   };
@@ -227,11 +229,17 @@ export default function Integrations() {
                         <Button
                           variant="outline"
                           className="border-border flex-1"
-                          onClick={() => handleDisconnect(connected.id)}
+                          onClick={() => {
+                            if (connected?.id) {
+                              handleDisconnect(connected.id);
+                            } else {
+                              toast.error('ID do canal não encontrado');
+                            }
+                          }}
                           disabled={deleteChannel.isPending}
                         >
                           <Trash2 className="h-4 w-4 mr-2" />
-                          Desconectar
+                          {deleteChannel.isPending ? 'Desconectando...' : 'Desconectar'}
                         </Button>
                         <Button variant="outline" className="border-border" asChild>
                           <a href={integration.docs} target="_blank" rel="noopener noreferrer">

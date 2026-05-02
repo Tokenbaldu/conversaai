@@ -125,3 +125,10 @@
 - [ ] Adicionar seta de retorno em páginas principais (não apenas admin)
 - [x] Estilizar seta com hover effects e transições
 - [x] Testar visibilidade em todos os breakpoints
+
+
+## Fase 15: Corrigir Bug de Desconexão WhatsApp e Instagram
+- [x] Investigar por que WhatsApp e Instagram não desconectam
+- [x] Verificar router de desconexão de integrações
+- [x] Testar desconexão em todas as integrações
+- [x] Implementar feedback visual ao desconectar

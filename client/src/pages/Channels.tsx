@@ -18,6 +18,7 @@ import {
   Trash2,
   Wifi,
   WifiOff,
+  ArrowLeft
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

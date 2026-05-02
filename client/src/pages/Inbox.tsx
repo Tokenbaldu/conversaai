@@ -21,6 +21,7 @@ import {
   Sparkles,
   User,
   X,
+  ArrowLeft
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";

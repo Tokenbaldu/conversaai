@@ -16,6 +16,7 @@ import {
   Sparkles,
   Users,
   Zap,
+  ArrowLeft
 } from "lucide-react";
 import { Link } from "wouter";
 

@@ -6,6 +6,7 @@ import { trpc } from "@/lib/trpc";
 import {
   ArrowRight,
   ArrowUpRight,
+  ArrowLeft,
   BarChart3,
   GitBranch,
   MessageSquare,
@@ -14,6 +15,7 @@ import {
   Users,
   Zap,
 } from "lucide-react";
+import { useGoBack } from "@/hooks/useGoBack";
 import { Link } from "wouter";
 import {
   AreaChart,
@@ -43,6 +45,7 @@ const quickActions = [
 ];
 
 export default function Dashboard() {
+  const goBack = useGoBack();
   const { data: stats } = trpc.dashboard.stats.useQuery();
 
   const statCards = [
@@ -82,6 +85,19 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
+      {/* Back Button - Fixed at top left */}
+      <div className="fixed top-4 left-4 z-50">
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={goBack}
+          className="bg-white dark:bg-slate-900 border-2 border-blue-500 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900 hover:text-blue-600 shadow-lg transition-all duration-200 flex items-center gap-2"
+        >
+          <ArrowLeft className="h-5 w-5" />
+          <span className="hidden sm:inline font-semibold">Voltar</span>
+        </Button>
+      </div>
+      
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">

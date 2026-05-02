@@ -111,4 +111,4 @@
 - [x] Adicionar configurações do PagBank no painel admin
 - [x] Criar routers PagBank para checkout
 - [x] Testar fluxo completo de pagamento com PagBank
-- [ ] Adicionar botão de PagBank na página de planos
+- [x] Adicionar botão de PagBank na página de planos

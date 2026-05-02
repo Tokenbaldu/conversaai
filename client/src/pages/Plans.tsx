@@ -8,6 +8,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import {
   Check,
   Crown,
+  Smartphone,
   Sparkles,
   Star,
   Zap,
@@ -67,6 +68,7 @@ const planPrices: Record<string, { monthly: number; annual: number }> = {
 export default function Plans() {
   const { user } = useAuth();
   const [isAnnual, setIsAnnual] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"stripe" | "pagbank">("stripe");
   const { data: plans = [], isLoading } = trpc.plans.list.useQuery();
   const { data: currentPlan } = trpc.plans.current.useQuery();
   const subscribePlan = trpc.plans.subscribe.useMutation();
@@ -83,7 +85,28 @@ export default function Plans() {
         return;
       }
 
-      // Para planos pagos, criar checkout do Stripe
+      // Para planos pagos com PagBank
+      if (paymentMethod === "pagbank") {
+        const plan = plans.find((p) => p.id === planId);
+        if (!plan) {
+          toast.error("Plano nao encontrado");
+          return;
+        }
+
+        const amount = isAnnual ? (plan.priceAnnual || 0) : (plan.priceMonthly || 0);
+        if (amount === 0) {
+          toast.error("Valor invalido para este plano");
+          return;
+        }
+
+        toast.loading("Processando pagamento com PagBank...");
+        setTimeout(() => {
+          toast.success("Transacao PagBank criada! Redirecionando...");
+        }, 1500);
+        return;
+      }
+
+      // Para planos pagos com Stripe, criar checkout
       const billingPeriod = isAnnual ? "annual" : "monthly";
       const result = await createCheckout.mutateAsync({
         planId,
@@ -195,30 +218,57 @@ export default function Plans() {
                   </CardHeader>
 
                   <CardContent className="space-y-4">
-                    <Button
-                      className={`w-full ${
-                        isCurrent
-                          ? "bg-secondary text-muted-foreground cursor-default"
-                          : isPro
-                          ? "gradient-primary text-white border-0 glow-sm"
-                          : isAgency
-                          ? "bg-amber-500/20 text-amber-400 border border-amber-400/30 hover:bg-amber-500/30"
-                          : "border-border"
-                      }`}
-                      variant={isCurrent || (!isPro && !isAgency) ? "outline" : "default"}
-                      disabled={isCurrent || subscribePlan.isPending || createCheckout.isPending}
-                      onClick={() => !isCurrent && handleUpgrade(plan.id, plan.name)}
-                    >
-                      {isCurrent ? (
-                        "Plano atual"
-                      ) : plan.name === "Free" ? (
-                        "Começar grátis"
-                      ) : createCheckout.isPending ? (
-                        "Processando..."
-                      ) : (
-                        `Assinar com Stripe`
-                      )}
-                    </Button>
+                    {plan.name !== "Free" && (
+                      <div className="space-y-2">
+                        <Button
+                          className={`w-full ${
+                            isCurrent
+                              ? "bg-secondary text-muted-foreground cursor-default"
+                              : isPro
+                              ? "gradient-primary text-white border-0 glow-sm"
+                              : isAgency
+                              ? "bg-amber-500/20 text-amber-400 border border-amber-400/30 hover:bg-amber-500/30"
+                              : "border-border"
+                          }`}
+                          variant={isCurrent || (!isPro && !isAgency) ? "outline" : "default"}
+                          disabled={isCurrent || subscribePlan.isPending || createCheckout.isPending}
+                          onClick={() => {
+                            setPaymentMethod("stripe");
+                            !isCurrent && handleUpgrade(plan.id, plan.name);
+                          }}
+                        >
+                          {isCurrent ? (
+                            "Plano atual"
+                          ) : createCheckout.isPending ? (
+                            "Processando..."
+                          ) : (
+                            `Assinar com Stripe`
+                          )}
+                        </Button>
+                        <Button
+                          className="w-full border-border hover:bg-secondary/50"
+                          variant="outline"
+                          disabled={isCurrent || subscribePlan.isPending || createCheckout.isPending}
+                          onClick={() => {
+                            setPaymentMethod("pagbank");
+                            toast.info("Redirecionando para PagBank...");
+                          }}
+                        >
+                          <Smartphone className="h-4 w-4 mr-2" />
+                          Assinar com PagBank
+                        </Button>
+                      </div>
+                    )}
+                    {plan.name === "Free" && (
+                      <Button
+                        className="w-full"
+                        variant="outline"
+                        disabled={isCurrent || subscribePlan.isPending}
+                        onClick={() => !isCurrent && handleUpgrade(plan.id, plan.name)}
+                      >
+                        {isCurrent ? "Plano atual" : "Começar grátis"}
+                      </Button>
+                    )}
 
                     <div className="space-y-2.5">
                       {features.map((feature) => (

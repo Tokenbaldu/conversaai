@@ -1,11 +1,12 @@
-import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, AlertCircle, Database, CreditCard, ExternalLink } from "lucide-react";
+import { Loader2, AlertCircle, Database, CreditCard, ExternalLink, ArrowLeft } from "lucide-react";
+import { useGoBack } from "@/hooks/useGoBack";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -13,6 +14,7 @@ import { toast } from "sonner";
 export default function AdminSettings() {
   const { user, loading } = useAuth();
   const [, setLocation] = useLocation();
+  const goBack = useGoBack();
   const [siteSettings, setSiteSettings] = useState({
     siteName: "",
     maintenanceMode: false,
@@ -84,9 +86,19 @@ export default function AdminSettings() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Configurações da Plataforma</h1>
-          <p className="text-gray-500">Gerencie as configurações gerais, segurança, banco de dados e pagamentos</p>
+        <div className="mb-8 flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={goBack}
+            className="hover:bg-secondary"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Configurações da Plataforma</h1>
+            <p className="text-gray-500">Gerencie as configurações gerais, segurança, banco de dados e pagamentos</p>
+          </div>
         </div>
 
         <Tabs defaultValue="general" className="w-full">

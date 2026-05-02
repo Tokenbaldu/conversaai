@@ -112,3 +112,9 @@
 - [x] Criar routers PagBank para checkout
 - [x] Testar fluxo completo de pagamento com PagBank
 - [x] Adicionar botão de PagBank na página de planos
+
+
+## Fase 13: Navegação com Botão de Voltar
+- [x] Adicionar botão de voltar em todas as páginas
+- [x] Implementar hook useGoBack para navegação
+- [x] Testar navegação em todas as rotas

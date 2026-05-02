@@ -1,8 +1,9 @@
-import { useAuth } from "@/_core/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, AlertCircle, Database, Download, RefreshCw, Trash2 } from "lucide-react";
+import { Loader2, AlertCircle, Database, Download, RefreshCw, Trash2, ArrowLeft } from "lucide-react";
+import { useGoBack } from "@/hooks/useGoBack";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -10,6 +11,7 @@ import { toast } from "sonner";
 export default function AdminDatabase() {
   const { user, loading } = useAuth();
   const [, setLocation] = useLocation();
+  const goBack = useGoBack();
   const [selectedTable, setSelectedTable] = useState("users");
 
   useEffect(() => {
@@ -65,12 +67,22 @@ export default function AdminDatabase() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
-            <Database className="w-8 h-8" />
-            Gerenciamento de Banco de Dados
-          </h1>
-          <p className="text-gray-500">Visualize, edite e gerencie os dados da plataforma</p>
+        <div className="mb-8 flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={goBack}
+            className="hover:bg-secondary"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
+              <Database className="w-8 h-8" />
+              Gerenciamento de Banco de Dados
+            </h1>
+            <p className="text-gray-500">Visualize, edite e gerencie os dados da plataforma</p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">

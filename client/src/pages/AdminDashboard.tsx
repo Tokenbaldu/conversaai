@@ -1,16 +1,18 @@
-import { useAuth } from "@/_core/hooks/useAuth";
-import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, Users, CreditCard, Zap, BarChart3, Settings, AlertCircle } from "lucide-react";
+import { Loader2, Users, CreditCard, Zap, BarChart3, Settings, AlertCircle, ArrowLeft } from "lucide-react";
+import { useGoBack } from "@/hooks/useGoBack";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
 
 export default function AdminDashboard() {
   const { user, loading } = useAuth();
   const [, setLocation] = useLocation();
+  const goBack = useGoBack();
   const { data: stats, isLoading } = trpc.admin.getDashboardStats.useQuery(undefined, {
     enabled: !!user && user.role === "admin",
   });
@@ -53,9 +55,19 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Painel Administrativo</h1>
-          <p className="text-gray-500">Gerencie todos os aspectos da plataforma ConversaAI</p>
+        <div className="mb-8 flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={goBack}
+            className="hover:bg-secondary"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-4xl font-bold text-foreground mb-2">Painel Administrativo</h1>
+            <p className="text-gray-500">Gerencie todos os aspectos da plataforma ConversaAI</p>
+          </div>
         </div>
 
         {/* Stats Grid */}

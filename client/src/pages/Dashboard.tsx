@@ -14,7 +14,9 @@ import {
   Users,
   Zap,
 } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import { ArrowLeft } from "lucide-react";
+import { useGoBack } from "@/hooks/useGoBack";
 import {
   AreaChart,
   Area,
@@ -43,6 +45,7 @@ const quickActions = [
 ];
 
 export default function Dashboard() {
+  const goBack = useGoBack();
   const { data: stats } = trpc.dashboard.stats.useQuery();
 
   const statCards = [
@@ -85,11 +88,20 @@ export default function Dashboard() {
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-            <p className="text-muted-foreground text-sm mt-1">
-              Visão geral da sua plataforma de automação
-            </p>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={goBack}
+              className="p-2 hover:bg-muted rounded-lg transition-colors"
+              title="Voltar"
+            >
+              <ArrowLeft className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+              <p className="text-muted-foreground text-sm mt-1">
+                Visão geral da sua plataforma de automação
+              </p>
+            </div>
           </div>
           <Link href="/flows/new">
             <Button className="gradient-primary text-white border-0 glow-sm">

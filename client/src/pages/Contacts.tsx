@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import {
+  ArrowLeft,
   Filter,
   Instagram,
   MessageCircle,
@@ -26,6 +27,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useGoBack } from "@/hooks/useGoBack";
 
 const channelIcons: Record<string, any> = {
   whatsapp: { icon: MessageCircle, color: "text-emerald-400", label: "WhatsApp" },
@@ -139,6 +141,7 @@ function TagManager() {
 }
 
 export default function Contacts() {
+  const goBack = useGoBack();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -169,9 +172,18 @@ export default function Contacts() {
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Contatos</h1>
-            <p className="text-muted-foreground text-sm mt-1">{total.toLocaleString()} contatos no total</p>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={goBack}
+              className="p-2 hover:bg-muted rounded-lg transition-colors"
+              title="Voltar"
+            >
+              <ArrowLeft className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Contatos</h1>
+              <p className="text-muted-foreground text-sm mt-1">{total.toLocaleString()} contatos no total</p>
+            </div>
           </div>
           <div className="flex gap-2">
             <Dialog open={tagDialogOpen} onOpenChange={setTagDialogOpen}>

@@ -70,9 +70,18 @@ export default function Integrations() {
   const [showAuthModal, setShowAuthModal] = useState<string | undefined>(undefined);
   const [authData, setAuthData] = useState<Record<string, string>>({});
 
+  // Criar um mapa de canais por tipo, mantendo apenas o primeiro de cada tipo
   const connectedChannels: Record<string, Channel> = {};
   channels.forEach((ch: Channel) => {
-    connectedChannels[ch.type] = ch;
+    if (!connectedChannels[ch.type]) {
+      connectedChannels[ch.type] = ch;
+    }
+  });
+  
+  // Também criar um mapa por ID para referência rápida
+  const channelsById: Record<number, Channel> = {};
+  channels.forEach((ch: Channel) => {
+    channelsById[ch.id] = ch;
   });
 
   const handleConnect = async (channelId: string) => {
@@ -98,11 +107,16 @@ export default function Integrations() {
 
   const handleDisconnect = async (channelId: number) => {
     try {
-      await deleteChannel.mutateAsync({ id: channelId });
-      utils.channels.list.invalidate();
-      toast.success("Canal desconectado");
-    } catch {
-      toast.error("Erro ao desconectar canal");
+      if (!channelId || typeof channelId !== 'number') {
+        throw new Error(`ID invalido: ${channelId}`);
+      }
+      const result = await deleteChannel.mutateAsync({ id: channelId });
+      await utils.channels.list.invalidate();
+      toast.success("Canal desconectado com sucesso!");
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      console.error('Erro ao desconectar:', msg);
+      toast.error(`Erro ao desconectar: ${msg}`);
     }
   };
 

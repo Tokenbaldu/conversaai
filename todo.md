@@ -71,3 +71,13 @@
 - [x] Estados de loading e erro em todas as telas
 - [x] Página de Settings com perfil e notificações
 - [x] Checkpoint final e entrega
+
+
+## Fase 9: Integração de Canais
+- [x] Adicionar botões de integração no menu lateral
+- [x] Criar página de Integrações com cards para cada canal
+- [x] Implementar OAuth flow para WhatsApp Business API
+- [x] Implementar OAuth flow para Instagram Graph API
+- [x] Implementar OAuth flow para Facebook Messenger
+- [x] Criar testes para validar integração de canais (19 testes)
+- [x] Testar fluxo completo de autenticação

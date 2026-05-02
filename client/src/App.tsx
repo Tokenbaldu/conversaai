@@ -18,6 +18,7 @@ import Channels from "./pages/Channels";
 import Plans from "./pages/Plans";
 import AIPage from "./pages/AIPage";
 import Settings from "./pages/Settings";
+import Integrations from "./pages/Integrations";
 
 function Router() {
   return (
@@ -37,6 +38,7 @@ function Router() {
       <Route path="/plans" component={Plans} />
       <Route path="/ai" component={AIPage} />
       <Route path="/settings" component={Settings} />
+      <Route path="/integrations" component={Integrations} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

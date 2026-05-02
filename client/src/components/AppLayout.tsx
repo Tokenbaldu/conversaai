@@ -61,6 +61,7 @@ const navItems = [
   {
     group: "Configurações",
     items: [
+      { href: "/integrations", icon: Zap, label: "Integrações", badge: "3" },
       { href: "/templates", icon: LayoutTemplate, label: "Templates" },
       { href: "/channels", icon: MessageSquare, label: "Canais" },
       { href: "/plans", icon: CreditCard, label: "Planos" },

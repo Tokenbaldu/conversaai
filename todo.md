@@ -155,3 +155,17 @@
   - Página de Planos mostra apenas opção "Assinar com Stripe"
   - Não há mais referências ao PagBank no frontend
   - Backend compilado sem erros
+
+
+## Fase 18: Corrigir Bug de Desconexao na Pagina de Integracoes - CONCLUIDA
+- [x] Investigar por que botoes "Desconectar" nao funcionam no WhatsApp e Instagram - RESOLVIDO
+- [x] Modificar handleDisconnect para deletar TODOS os canais do mesmo tipo
+- [x] Testar desconexao em todas as integracoes - Ambos funcionam corretamente
+- [x] Testar todo o site apos correcao - Verificado:
+  - Pagina inicial: OK
+  - Dashboard: OK
+  - Flows: OK
+  - Contatos: OK
+  - Planos: OK
+  - Painel Admin: OK
+  - Integracoes: OK - WhatsApp, Instagram e Messenger todos em "Nao conectado"

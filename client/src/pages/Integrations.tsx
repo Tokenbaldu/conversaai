@@ -113,7 +113,19 @@ export default function Integrations() {
       if (!channelId || typeof channelId !== 'number') {
         throw new Error(`ID invalido: ${channelId}`);
       }
-      await deleteChannel.mutateAsync({ id: channelId });
+      
+      // Encontrar o tipo do canal que será desconectado
+      const channelToDelete = channels.find((ch: Channel) => ch.id === channelId);
+      if (!channelToDelete) {
+        throw new Error('Canal nao encontrado');
+      }
+      
+      // Deletar TODOS os canais do mesmo tipo
+      const channelsOfSameType = channels.filter((ch: Channel) => ch.type === channelToDelete.type);
+      for (const ch of channelsOfSameType) {
+        await deleteChannel.mutateAsync({ id: ch.id });
+      }
+      
       await utils.channels.list.invalidate();
       toast.success("Canal desconectado com sucesso!");
     } catch (error) {

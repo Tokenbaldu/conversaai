@@ -156,7 +156,7 @@ export default function AdminDatabase() {
                           <tr className="border-b hover:bg-gray-50">
                             <td className="py-2 px-4">1</td>
                             <td className="py-2 px-4">Dma Investimentos</td>
-                            <td className="py-2 px-4">admin@conversaai.com</td>
+                            <td className="py-2 px-4">admin@conversaia.cloud</td>
                             <td className="py-2 px-4">2026-01-15</td>
                             <td className="py-2 px-4">
                               <Button variant="ghost" size="sm">Editar</Button>

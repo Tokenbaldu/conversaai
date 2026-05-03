@@ -112,7 +112,7 @@ export default function Landing() {
             <div className="h-8 w-8 rounded-lg gradient-primary flex items-center justify-center glow-sm">
               <MessageSquare className="h-4 w-4 text-white" />
             </div>
-            <span className="font-bold text-lg text-foreground">ConversaAI</span>
+            <span className="font-bold text-lg text-foreground">ConversaIA.Cloud</span>
           </div>
           <div className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Funcionalidades</a>
@@ -329,7 +329,7 @@ export default function Landing() {
                 Pronto para automatizar suas vendas?
               </h2>
               <p className="text-muted-foreground mb-8 text-lg">
-                Junte-se a milhares de empresas que já usam o ConversaAI para crescer.
+                Junte-se a milhares de empresas que já usam o ConversaIA.Cloud para crescer.
               </p>
               <a href={getLoginUrl()}>
                 <Button size="lg" className="gradient-primary text-white border-0 glow-primary px-10 h-12 text-base font-semibold">
@@ -349,10 +349,10 @@ export default function Landing() {
             <div className="h-6 w-6 rounded-md gradient-primary flex items-center justify-center">
               <MessageSquare className="h-3 w-3 text-white" />
             </div>
-            <span className="font-bold text-sm text-foreground">ConversaAI</span>
+            <span className="font-bold text-sm text-foreground">ConversaIA.Cloud</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            © 2025 ConversaAI. Plataforma de automação conversacional com IA.
+             © 2025 ConversaIA.Cloud. Plataforma de automação conversacional com IA.
           </p>
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Shield className="h-3 w-3" />

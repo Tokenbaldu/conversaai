@@ -135,10 +135,13 @@
 
 
 ## Fase 16: Trocar Nome para ConversaIA.Cloud
-- [ ] Atualizar título da aplicação para "ConversaIA.Cloud"
-- [ ] Atualizar referências ao nome em todo o projeto
-- [ ] Testar mudanças em todas as páginas
-- [ ] Atualizar domínio customizado se necessário
+- [x] Atualizar título da aplicação para "ConversaIA.Cloud" (via painel de Configurações do Manus)
+- [x] Atualizar referências ao nome em todo o projeto (AppLayout, Landing, AdminDashboard, AdminSettings)
+- [x] Testar mudanças em todas as páginas - Verificado que:
+  - Logo mostra "ConversaIA.Cloud"
+  - Footer mostra "ConversaIA.Cloud"
+  - Todas as referências atualizadas
+- [x] Atualizar domínio customizado se necessário (já configurado como conversai-qteablcn.manus.space)
 
 
 ## Fase 17: Remover PagBank

@@ -134,7 +134,7 @@ export default function AdminSettings() {
                       id="siteName"
                       value={siteSettings.siteName}
                       onChange={(e) => setSiteSettings({ ...siteSettings, siteName: e.target.value })}
-                      placeholder="ConversaAI"
+                      placeholder="ConversaIA.Cloud"
                     />
                   </div>
 

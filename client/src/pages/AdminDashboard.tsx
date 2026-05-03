@@ -70,7 +70,7 @@ export default function AdminDashboard() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-foreground mb-2">Painel Administrativo</h1>
-          <p className="text-gray-500">Gerencie todos os aspectos da plataforma ConversaAI</p>
+          <p className="text-gray-500">Gerencie todos os aspectos da plataforma ConversaIA.Cloud</p>
         </div>
 
         {/* Stats Grid */}

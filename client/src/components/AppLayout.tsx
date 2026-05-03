@@ -139,7 +139,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           {!collapsed && (
             <div className="flex flex-col">
               <span className="font-bold text-sm text-foreground font-['Plus_Jakarta_Sans']">
-                ConversaAI
+                ConversaIA.Cloud
               </span>
               <span className="text-xs text-muted-foreground">Marketing Platform</span>
             </div>

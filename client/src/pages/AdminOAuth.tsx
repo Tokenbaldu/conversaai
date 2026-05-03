@@ -219,7 +219,7 @@ export default function AdminOAuth() {
               <div>
                 <Label className="text-sm font-medium">Redirect URIs</Label>
                 <div className="mt-2 space-y-2">
-                  {app.redirectUris.map((uri: string, idx: number) => (
+                  {(typeof app.redirectUris === 'string' ? JSON.parse(app.redirectUris) : app.redirectUris).map((uri: string, idx: number) => (
                     <div key={idx} className="flex items-center gap-2">
                       <code className="flex-1 bg-muted p-2 rounded text-sm font-mono break-all">
                         {uri}
@@ -240,7 +240,7 @@ export default function AdminOAuth() {
               <div>
                 <Label className="text-sm font-medium">Escopos</Label>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {app.scopes.map((scope: string, idx: number) => (
+                  {(typeof app.scopes === 'string' ? JSON.parse(app.scopes) : app.scopes).map((scope: string, idx: number) => (
                     <span
                       key={idx}
                       className="bg-primary/10 text-primary px-2 py-1 rounded text-sm"

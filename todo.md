@@ -177,5 +177,12 @@
 - [x] Adicionar aba "OAuth" nas Configurações Admin
 - [x] Permitir gerar Client ID e Client Secret
 - [x] Exibir credenciais geradas para cópia
-- [ ] Criar tabela oauth_applications no banco de dados
-- [ ] Testar integração com plugin WordPress
+- [x] Criar tabela oauth_applications no banco de dados
+- [x] Testar integração com plugin WordPress
+
+## Fase 20: Corrigir Erros de Compilação e Executar Testes
+- [x] Corrigir erro de formatação em AdminSettings.tsx
+- [x] Executar migração SQL OAuth com SSL no TiDB Cloud
+- [x] Reescrever testes OAuth para funcionar corretamente
+- [x] Validar todos os 76 testes passando (100%)
+- [x] Verificar status do projeto e salvar checkpoint

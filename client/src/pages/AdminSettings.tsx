@@ -21,7 +21,6 @@ export default function AdminSettings() {
     emailNotifications: true,
   });
 
-
   const { data: settings, isLoading, refetch } = trpc.admin.getSiteSettings.useQuery(undefined, {
     enabled: !!user && user.role === "admin",
   });
@@ -94,7 +93,7 @@ export default function AdminSettings() {
           <span className="hidden sm:inline font-semibold">Voltar</span>
         </Button>
       </div>
-      
+
       <div className="container mx-auto py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">Configurações da Plataforma</h1>
@@ -276,7 +275,7 @@ export default function AdminSettings() {
                   <p className="text-sm text-gray-600">
                     Acesse a página completa de gerenciamento de OAuth para criar e gerenciar aplicações:
                   </p>
-                  <Button 
+                  <Button
                     className="w-full gap-2"
                     onClick={() => setLocation("/admin/oauth")}
                   >

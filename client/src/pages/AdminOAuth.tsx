@@ -4,10 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { AlertCircle, Copy, Plus, Trash2, Eye, EyeOff } from "lucide-react";
+import { AlertCircle, Copy, Plus, Trash2, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { useLocation } from "wouter";
 
 export default function AdminOAuth() {
   const [showSecret, setShowSecret] = useState<Record<number, boolean>>({});
@@ -71,15 +72,28 @@ export default function AdminOAuth() {
     }));
   };
 
+  const [, setLocation] = useLocation();
+
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header com Botão de Voltar */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Gerenciamento de OAuth</h1>
-          <p className="text-muted-foreground mt-2">
-            Crie e gerencie aplicações OAuth para integração com serviços externos
-          </p>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setLocation("/admin/settings")}
+            className="hover:bg-accent"
+            title="Voltar para Configurações"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">Gerenciamento de OAuth</h1>
+            <p className="text-muted-foreground mt-2">
+              Crie e gerencie aplicações OAuth para integração com serviços externos
+            </p>
+          </div>
         </div>
         <Dialog open={isCreating} onOpenChange={setIsCreating}>
           <DialogTrigger asChild>

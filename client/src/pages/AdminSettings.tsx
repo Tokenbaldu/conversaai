@@ -102,11 +102,12 @@ export default function AdminSettings() {
         </div>
 
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="general">Geral</TabsTrigger>
             <TabsTrigger value="security">Segurança</TabsTrigger>
             <TabsTrigger value="database">Banco de Dados</TabsTrigger>
             <TabsTrigger value="notifications">Notificações</TabsTrigger>
+            <TabsTrigger value="oauth">OAuth</TabsTrigger>
           </TabsList>
 
           {/* Geral */}
@@ -258,6 +259,30 @@ export default function AdminSettings() {
                       <p className="text-lg font-bold">~50MB</p>
                     </div>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* OAuth */}
+          <TabsContent value="oauth" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Gerenciamento de OAuth</CardTitle>
+                <CardDescription>Crie e gerencie aplicações OAuth para integrações externas</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600">
+                    Acesse a página completa de gerenciamento de OAuth para criar e gerenciar aplicações:
+                  </p>
+                  <Button 
+                    className="w-full gap-2"
+                    onClick={() => setLocation("/admin/oauth")}
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Ir para Gerenciamento de OAuth
+                  </Button>
                 </div>
               </CardContent>
             </Card>

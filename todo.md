@@ -169,3 +169,13 @@
   - Planos: OK
   - Painel Admin: OK
   - Integracoes: OK - WhatsApp, Instagram e Messenger todos em "Nao conectado"
+
+
+## Fase 19: Adicionar Página de Gerenciamento de OAuth
+- [x] Criar página AdminOAuth.tsx para gerenciar aplicações OAuth
+- [x] Adicionar router para criar/editar/deletar aplicações OAuth
+- [x] Adicionar aba "OAuth" nas Configurações Admin
+- [x] Permitir gerar Client ID e Client Secret
+- [x] Exibir credenciais geradas para cópia
+- [ ] Criar tabela oauth_applications no banco de dados
+- [ ] Testar integração com plugin WordPress

@@ -25,6 +25,7 @@ import AdminPlans from "./pages/AdminPlans";
 import AdminStripe from "./pages/AdminStripe";
 import AdminSettings from "./pages/AdminSettings";
 import AdminDatabase from "./pages/AdminDatabase";
+import AdminOAuth from "./pages/AdminOAuth";
 
 
 function Router() {
@@ -52,6 +53,7 @@ function Router() {
       <Route path="/admin/stripe" component={AdminStripe} />
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin/database" component={AdminDatabase} />
+      <Route path="/admin/oauth" component={AdminOAuth} />
 
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

@@ -36,6 +36,13 @@
       "when": 1777750410048,
       "tag": "0004_workable_echo",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1777813727637,
+      "tag": "0005_jittery_calypso",
+      "breakpoints": true
     }
   ]
 }

@@ -248,6 +248,22 @@ export const mediaFiles = mysqlTable("media_files", {
 
 export type MediaFile = typeof mediaFiles.$inferSelect;
 
+// ─── OAuth Applications ───────────────────────────────────────────────────────
+export const oauthApplications = mysqlTable("oauth_applications", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 128 }).notNull(),
+  clientId: varchar("clientId", { length: 256 }).notNull().unique(),
+  clientSecret: text("clientSecret").notNull(),
+  redirectUris: json("redirectUris").notNull(), // array of URIs
+  scopes: json("scopes").notNull(), // array of scopes
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type OAuthApplication = typeof oauthApplications.$inferSelect;
+export type InsertOAuthApplication = typeof oauthApplications.$inferInsert;
+
 // ─── Analytics Events ─────────────────────────────────────────────────────────
 export const analyticsEvents = mysqlTable("analytics_events", {
   id: int("id").autoincrement().primaryKey(),

@@ -1,8 +1,9 @@
-import { protectedProcedure, router } from "../_core/trpc";
+import { protectedProcedure, router, adminProcedure } from "../_core/trpc";
 import { z } from "zod";
 import { getDb } from "../db";
-import { channels } from "../../drizzle/schema";
+import { channels, oauthApplications } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
+import crypto from "crypto";
 
 export const oauthRouter = router({
   /**
@@ -188,5 +189,91 @@ export const oauthRouter = router({
         connectedAt: ch.createdAt,
         config: ch.config,
       };
+    }),
+
+  // OAuth Applications Management
+  list: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new Error("Database not available");
+    return await db.select().from(oauthApplications);
+  }),
+
+  get: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+      const apps = await db
+        .select()
+        .from(oauthApplications)
+        .where(eq(oauthApplications.id, input.id));
+      return apps[0];
+    }),
+
+  create: adminProcedure
+    .input(
+      z.object({
+        name: z.string().min(1).max(128),
+        redirectUris: z.array(z.string()),
+        scopes: z.array(z.string()),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const clientId = `conversaia_${crypto.randomBytes(8).toString("hex")}`;
+      const clientSecret = crypto.randomBytes(32).toString("hex");
+
+      const result = await db
+        .insert(oauthApplications)
+        .values({
+          name: input.name,
+          clientId,
+          clientSecret,
+          redirectUris: input.redirectUris,
+          scopes: input.scopes,
+          isActive: true,
+        });
+
+      return {
+        id: (result as any).insertId,
+        name: input.name,
+        clientId,
+        clientSecret,
+        redirectUris: input.redirectUris,
+        scopes: input.scopes,
+        isActive: true,
+      };
+    }),
+
+  update: adminProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        name: z.string().min(1).max(128).optional(),
+        redirectUris: z.array(z.string()).optional(),
+        scopes: z.array(z.string()).optional(),
+        isActive: z.boolean().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const { id, ...data } = input;
+      await db.update(oauthApplications).set(data).where(eq(oauthApplications.id, id));
+
+      return { success: true };
+    }),
+
+  delete: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      await db.delete(oauthApplications).where(eq(oauthApplications.id, input.id));
+      return { success: true };
     }),
 });

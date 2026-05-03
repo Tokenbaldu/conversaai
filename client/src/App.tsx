@@ -25,7 +25,7 @@ import AdminPlans from "./pages/AdminPlans";
 import AdminStripe from "./pages/AdminStripe";
 import AdminSettings from "./pages/AdminSettings";
 import AdminDatabase from "./pages/AdminDatabase";
-import AdminPagBank from "./pages/AdminPagBank";
+
 
 function Router() {
   return (
@@ -52,7 +52,7 @@ function Router() {
       <Route path="/admin/stripe" component={AdminStripe} />
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin/database" component={AdminDatabase} />
-      <Route path="/admin/pagbank" component={AdminPagBank} />
+
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

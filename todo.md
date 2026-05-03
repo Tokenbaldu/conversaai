@@ -132,3 +132,23 @@
 - [x] Verificar router de desconexão de integrações
 - [x] Testar desconexão em todas as integrações
 - [x] Implementar feedback visual ao desconectar
+
+
+## Fase 16: Trocar Nome para ConversaIA.Cloud
+- [ ] Atualizar título da aplicação para "ConversaIA.Cloud"
+- [ ] Atualizar referências ao nome em todo o projeto
+- [ ] Testar mudanças em todas as páginas
+- [ ] Atualizar domínio customizado se necessário
+
+
+## Fase 17: Remover PagBank
+- [x] Remover página AdminPagBank.tsx
+- [x] Remover rota /admin/pagbank do App.tsx
+- [x] Remover menu item PagBank da navegação
+- [x] Remover referências ao PagBank no código (Plans.tsx, AdminSettings.tsx, routers.ts)
+- [x] Remover routers e testes do PagBank do backend
+- [x] Testar navegação após remoção - Verificado que:
+  - Menu admin não exibe mais PagBank
+  - Página de Planos mostra apenas opção "Assinar com Stripe"
+  - Não há mais referências ao PagBank no frontend
+  - Backend compilado sem erros

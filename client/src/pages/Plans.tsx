@@ -68,7 +68,7 @@ const planPrices: Record<string, { monthly: number; annual: number }> = {
 export default function Plans() {
   const { user } = useAuth();
   const [isAnnual, setIsAnnual] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"stripe" | "pagbank">("stripe");
+  const [paymentMethod, setPaymentMethod] = useState<"stripe">("stripe");
   const { data: plans = [], isLoading } = trpc.plans.list.useQuery();
   const { data: currentPlan } = trpc.plans.current.useQuery();
   const subscribePlan = trpc.plans.subscribe.useMutation();
@@ -82,27 +82,6 @@ export default function Plans() {
         await subscribePlan.mutateAsync({ planId });
         utils.plans.current.invalidate();
         toast.success("Plano Free ativado com sucesso!");
-        return;
-      }
-
-      // Para planos pagos com PagBank
-      if (paymentMethod === "pagbank") {
-        const plan = plans.find((p) => p.id === planId);
-        if (!plan) {
-          toast.error("Plano nao encontrado");
-          return;
-        }
-
-        const amount = isAnnual ? (plan.priceAnnual || 0) : (plan.priceMonthly || 0);
-        if (amount === 0) {
-          toast.error("Valor invalido para este plano");
-          return;
-        }
-
-        toast.loading("Processando pagamento com PagBank...");
-        setTimeout(() => {
-          toast.success("Transacao PagBank criada! Redirecionando...");
-        }, 1500);
         return;
       }
 
@@ -245,18 +224,7 @@ export default function Plans() {
                             `Assinar com Stripe`
                           )}
                         </Button>
-                        <Button
-                          className="w-full border-border hover:bg-secondary/50"
-                          variant="outline"
-                          disabled={isCurrent || subscribePlan.isPending || createCheckout.isPending}
-                          onClick={() => {
-                            setPaymentMethod("pagbank");
-                            toast.info("Redirecionando para PagBank...");
-                          }}
-                        >
-                          <Smartphone className="h-4 w-4 mr-2" />
-                          Assinar com PagBank
-                        </Button>
+
                       </div>
                     )}
                     {plan.name === "Free" && (

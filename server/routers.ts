@@ -16,7 +16,7 @@ import { mediaRouter } from "./routers/media";
 import { aiRouter } from "./routers/ai";
 import { oauthRouter } from "./routers/oauth";
 import { adminRouter } from "./routers/admin";
-import { pagbankRouter } from "./routers/pagbank";
+
 
 export const appRouter = router({
   system: systemRouter,
@@ -42,7 +42,7 @@ export const appRouter = router({
   ai: aiRouter,
   oauth: oauthRouter,
   admin: adminRouter,
-  pagbank: pagbankRouter,
+
 });
 
 export type AppRouter = typeof appRouter;

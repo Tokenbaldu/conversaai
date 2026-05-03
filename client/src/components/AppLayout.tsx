@@ -81,7 +81,7 @@ const adminNavItems = [
       { href: "/admin/users", icon: Users, label: "Usuários" },
       { href: "/admin/plans", icon: CreditCard, label: "Planos" },
       { href: "/admin/stripe", icon: CreditCard, label: "Stripe" },
-      { href: "/admin/pagbank", icon: Smartphone, label: "PagBank" },
+
       { href: "/admin/database", icon: Database, label: "Banco de Dados" },
       { href: "/admin/settings", icon: Settings, label: "Configurações" },
     ],

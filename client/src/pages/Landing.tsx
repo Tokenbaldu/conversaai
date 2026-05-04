@@ -4,17 +4,20 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { trpc } from "@/lib/trpc";
 import {
   ArrowRight,
   BarChart3,
   Bot,
   CheckCircle2,
+  ChevronDown,
   GitBranch,
   Inbox,
   MessageSquare,
   Radio,
   Shield,
   Sparkles,
+  Star,
   Users,
   Zap,
 } from "lucide-react";
@@ -73,6 +76,7 @@ const channels = [
 
 const plans = [
   {
+    id: 1,
     name: "Starter",
     price: "R$ 10",
     period: "/mês (1º mês)",
@@ -82,6 +86,7 @@ const plans = [
     highlight: false,
   },
   {
+    id: 2,
     name: "Pro",
     price: "R$ 97",
     period: "/mês",
@@ -93,6 +98,7 @@ const plans = [
     highlight: true,
   },
   {
+    id: 3,
     name: "Agency",
     price: "R$ 120",
     period: "/mês",
@@ -105,9 +111,88 @@ const plans = [
   },
 ];
 
+const testimonials = [
+  {
+    name: "João Silva",
+    company: "E-commerce Plus",
+    role: "Proprietário",
+    text: "Aumentei minhas vendas em 150% usando ConversaIA. A automação com WhatsApp é incrível!",
+    rating: 5,
+  },
+  {
+    name: "Maria Santos",
+    company: "Agência Digital",
+    role: "Gerente de Projetos",
+    text: "Nossos clientes adoram a integração multi-canal. Economizamos 20 horas por semana.",
+    rating: 5,
+  },
+  {
+    name: "Carlos Oliveira",
+    company: "SaaS Startup",
+    role: "CEO",
+    text: "A IA avançada nos ajudou a automatizar 80% do atendimento. Recomendo muito!",
+    rating: 5,
+  },
+];
+
+const faqs = [
+  {
+    question: "Como funciona o período de teste?",
+    answer: "Você tem 30 dias para testar a plataforma gratuitamente com o plano Starter. Após esse período, é necessário fazer upgrade para um plano pago para continuar usando.",
+  },
+  {
+    question: "Posso mudar de plano a qualquer momento?",
+    answer: "Sim! Você pode fazer upgrade ou downgrade de plano a qualquer momento. As mudanças entram em vigor no próximo ciclo de faturamento.",
+  },
+  {
+    question: "Quais canais são suportados?",
+    answer: "Atualmente suportamos WhatsApp, Instagram e Messenger. Estamos trabalhando para adicionar Telegram e SMS em breve.",
+  },
+  {
+    question: "Há limite de mensagens?",
+    answer: "Não há limite de mensagens. Você pode enviar quantas mensagens precisar dentro do seu plano. O limite é apenas no número de contatos e fluxos ativos.",
+  },
+  {
+    question: "Vocês oferecem suporte técnico?",
+    answer: "Sim! Todos os planos incluem suporte. Planos Pro e Agency têm suporte prioritário com tempo de resposta mais rápido.",
+  },
+  {
+    question: "Como faço para cancelar minha assinatura?",
+    answer: "Você pode cancelar sua assinatura a qualquer momento na seção de configurações. Não há multa ou taxa de cancelamento.",
+  },
+];
+
 export default function Landing() {
   const { isAuthenticated } = useAuth();
   const [isAnnual, setIsAnnual] = useState(false);
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [loadingCheckout, setLoadingCheckout] = useState<number | null>(null);
+
+  const createCheckoutMutation = trpc.plans.createCheckout.useMutation();
+
+  const handleCheckout = async (planId: number) => {
+    if (!isAuthenticated) {
+      window.location.href = getLoginUrl();
+      return;
+    }
+
+    setLoadingCheckout(planId);
+    try {
+      const result = await createCheckoutMutation.mutateAsync({
+        planId,
+        billingPeriod: isAnnual ? "annual" : "monthly",
+      });
+
+      if (result.checkoutUrl) {
+        window.open(result.checkoutUrl, "_blank");
+      }
+    } catch (error) {
+      console.error("Erro ao criar checkout:", error);
+      alert("Erro ao processar pagamento. Tente novamente.");
+    } finally {
+      setLoadingCheckout(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -124,6 +209,8 @@ export default function Landing() {
             <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Funcionalidades</a>
             <a href="#channels" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Canais</a>
             <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Preços</a>
+            <a href="#testimonials" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Depoimentos</a>
+            <a href="#faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">FAQ</a>
           </div>
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
@@ -257,6 +344,40 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Testimonials */}
+      <section id="testimonials" className="py-24 px-6 bg-card/30">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-primary/15 text-primary border-primary/20">
+              Depoimentos
+            </Badge>
+            <h2 className="text-4xl font-bold mb-4">
+              O que nossos clientes dizem
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Veja como ConversaIA está transformando negócios em todo o Brasil.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {testimonials.map((testimonial, idx) => (
+              <Card key={idx} className="p-6 bg-card border-border hover:border-primary/30 transition-all duration-300">
+                <div className="flex gap-1 mb-4">
+                  {Array.from({ length: testimonial.rating }).map((_, i) => (
+                    <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+                <p className="text-muted-foreground mb-4 leading-relaxed">"{testimonial.text}"</p>
+                <div className="border-t border-border pt-4">
+                  <p className="font-semibold text-foreground">{testimonial.name}</p>
+                  <p className="text-sm text-muted-foreground">{testimonial.role} • {testimonial.company}</p>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Pricing */}
       <section id="pricing" className="py-24 px-6 bg-card/30">
         <div className="max-w-5xl mx-auto">
@@ -275,27 +396,25 @@ export default function Landing() {
               <span className={`text-sm font-medium ${!isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>Mensal</span>
               <button
                 onClick={() => setIsAnnual(!isAnnual)}
-                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${isAnnual ? 'bg-primary' : 'bg-border'}`}
+                className="relative inline-flex h-8 w-14 items-center rounded-full bg-muted"
               >
-                <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${isAnnual ? 'translate-x-7' : 'translate-x-1'}`} />
+                <span
+                  className={`inline-block h-6 w-6 transform rounded-full bg-white transition ${
+                    isAnnual ? 'translate-x-7' : 'translate-x-1'
+                  }`}
+                />
               </button>
               <span className={`text-sm font-medium ${isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>Anual</span>
-              {isAnnual && (
-                <Badge className="ml-2 bg-green-500/20 text-green-400 border-green-500/30">
-                  Economize até 20%
-                </Badge>
-              )}
+              {isAnnual && <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Economize até 20%</Badge>}
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {plans.map((plan) => (
               <Card
-                key={plan.name}
-                className={`p-6 border transition-all duration-300 relative overflow-hidden ${
-                  plan.highlight
-                    ? "border-primary/50 glow-primary bg-card"
-                    : "border-border bg-card hover:border-primary/20"
+                key={plan.id}
+                className={`p-6 bg-card border-border transition-all duration-300 ${
+                  plan.highlight ? 'md:scale-105 border-primary/50' : ''
                 }`}
               >
                 {plan.highlight && (
@@ -334,14 +453,53 @@ export default function Landing() {
                     </li>
                   ))}
                 </ul>
-                <a href={getLoginUrl()}>
-                  <Button
-                    className="w-full gradient-primary text-white border-0 glow-sm"
-                    variant="default"
-                  >
-                    {plan.cta}
-                  </Button>
-                </a>
+                <Button
+                  onClick={() => handleCheckout(plan.id)}
+                  disabled={loadingCheckout === plan.id}
+                  className="w-full gradient-primary text-white border-0 glow-sm"
+                >
+                  {loadingCheckout === plan.id ? "Processando..." : plan.cta}
+                </Button>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="py-24 px-6">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-primary/15 text-primary border-primary/20">
+              FAQ
+            </Badge>
+            <h2 className="text-4xl font-bold mb-4">
+              Perguntas Frequentes
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Encontre respostas para as dúvidas mais comuns sobre nossa plataforma.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {faqs.map((faq, idx) => (
+              <Card key={idx} className="p-6 bg-card border-border hover:border-primary/30 transition-all duration-300">
+                <button
+                  onClick={() => setExpandedFaq(expandedFaq === idx ? null : idx)}
+                  className="w-full flex items-center justify-between text-left"
+                >
+                  <h3 className="font-semibold text-foreground">{faq.question}</h3>
+                  <ChevronDown
+                    className={`h-5 w-5 text-muted-foreground transition-transform ${
+                      expandedFaq === idx ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+                {expandedFaq === idx && (
+                  <p className="text-muted-foreground mt-4 leading-relaxed">
+                    {faq.answer}
+                  </p>
+                )}
               </Card>
             ))}
           </div>

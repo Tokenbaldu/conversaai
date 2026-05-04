@@ -334,3 +334,16 @@ export const pagbankTransactions = mysqlTable("pagbank_transactions", {
 
 export type PagBankTransaction = typeof pagbankTransactions.$inferSelect;
 export type InsertPagBankTransaction = typeof pagbankTransactions.$inferInsert;
+
+// ─── Site Settings ───────────────────────────────────────────────────────────
+export const siteSettings = mysqlTable("site_settings", {
+  id: int("id").autoincrement().primaryKey(),
+  key: varchar("key", { length: 128 }).notNull().unique(), // whatsapp_support_link, site_title, etc.
+  value: text("value").notNull(),
+  description: text("description"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SiteSetting = typeof siteSettings.$inferSelect;
+export type InsertSiteSetting = typeof siteSettings.$inferInsert;

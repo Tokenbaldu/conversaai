@@ -17,6 +17,7 @@ import { aiRouter } from "./routers/ai";
 import { oauthRouter } from "./routers/oauth";
 import { adminRouter } from "./routers/admin";
 import { metricsRouter } from "./routers/metrics";
+import { settingsRouter } from "./routers/settings";
 
 
 export const appRouter = router({
@@ -44,6 +45,7 @@ export const appRouter = router({
   oauth: oauthRouter,
   admin: adminRouter,
   metrics: metricsRouter,
+  settings: settingsRouter,
 
 });
 

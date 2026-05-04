@@ -27,6 +27,7 @@ import AdminSettings from "./pages/AdminSettings";
 import AdminDatabase from "./pages/AdminDatabase";
 import AdminOAuth from "./pages/AdminOAuth";
 import { PublicMetrics } from "./pages/PublicMetrics";
+import { FloatingWhatsApp } from "./components/FloatingWhatsApp";
 
 
 function Router() {
@@ -70,6 +71,7 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Router />
+          <FloatingWhatsApp />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

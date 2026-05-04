@@ -43,6 +43,13 @@
       "when": 1777813727637,
       "tag": "0005_jittery_calypso",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1777905304074,
+      "tag": "0006_long_thena",
+      "breakpoints": true
     }
   ]
 }

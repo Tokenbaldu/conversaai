@@ -16,6 +16,7 @@ import { mediaRouter } from "./routers/media";
 import { aiRouter } from "./routers/ai";
 import { oauthRouter } from "./routers/oauth";
 import { adminRouter } from "./routers/admin";
+import { metricsRouter } from "./routers/metrics";
 
 
 export const appRouter = router({
@@ -42,6 +43,7 @@ export const appRouter = router({
   ai: aiRouter,
   oauth: oauthRouter,
   admin: adminRouter,
+  metrics: metricsRouter,
 
 });
 

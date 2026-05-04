@@ -26,12 +26,14 @@ import AdminStripe from "./pages/AdminStripe";
 import AdminSettings from "./pages/AdminSettings";
 import AdminDatabase from "./pages/AdminDatabase";
 import AdminOAuth from "./pages/AdminOAuth";
+import { PublicMetrics } from "./pages/PublicMetrics";
 
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Landing} />
+      <Route path="/metrics" component={PublicMetrics} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/flows" component={Flows} />
       <Route path="/flows/new" component={FlowBuilder} />

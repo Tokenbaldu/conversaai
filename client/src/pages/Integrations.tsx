@@ -2,6 +2,14 @@ import AppLayout from "@/components/AppLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
 import {
   Check,
@@ -269,7 +277,13 @@ export default function Integrations() {
                       <>
                         <Button
                           className="gradient-primary text-white border-0 flex-1"
-                          onClick={() => handleConnect(integration.id)}
+                          onClick={() => {
+                            if (integration.id === "whatsapp") {
+                              handleConnect(integration.id);
+                            } else {
+                              setShowAuthModal(integration.id);
+                            }
+                          }}
                           disabled={createChannel.isPending}
                         >
                           {integration.id === "whatsapp" ? (
@@ -298,6 +312,80 @@ export default function Integrations() {
           })}
         </div>
       </div>
+
+      {/* Auth Modal */}
+      <Dialog open={!!showAuthModal} onOpenChange={(open) => !open && setShowAuthModal(undefined)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              Conectar {integrations.find((i) => i.id === showAuthModal)?.name}
+            </DialogTitle>
+            <DialogDescription>
+              Insira suas credenciais para conectar o canal
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-foreground">Access Token</label>
+              <Input
+                placeholder="Cole seu access token aqui"
+                value={authData[`${showAuthModal}_token`] || ""}
+                onChange={(e) =>
+                  setAuthData({
+                    ...authData,
+                    [`${showAuthModal}_token`]: e.target.value,
+                  })
+                }
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-foreground">ID da Conta</label>
+              <Input
+                placeholder="ID da conta ou número de telefone"
+                value={authData[`${showAuthModal}_account`] || ""}
+                onChange={(e) =>
+                  setAuthData({
+                    ...authData,
+                    [`${showAuthModal}_account`]: e.target.value,
+                  })
+                }
+                className="mt-1"
+              />
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-xs text-blue-800">
+                <strong>Como obter as credenciais?</strong>
+                <br />
+                Visite a documentação oficial do canal para obter seu access token e ID da conta.
+              </p>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => {
+                  setShowAuthModal(undefined);
+                  setAuthData({});
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button
+                className="gradient-primary text-white border-0 flex-1"
+                onClick={() => handleConnect(showAuthModal || "")}
+                disabled={createChannel.isPending}
+              >
+                {createChannel.isPending ? "Conectando..." : "Conectar"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }

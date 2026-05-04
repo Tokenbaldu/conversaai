@@ -3,22 +3,18 @@ import { MessageCircle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 export function FloatingWhatsApp() {
-  const [whatsappLink, setWhatsappLink] = useState<string | null>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const [whatsappLink, setWhatsappLink] = useState<string>("https://wa.me/5511999999999"); // Default link
+  const [isLoading, setIsLoading] = useState(true);
 
   // Fetch WhatsApp support link from settings
   const { data: settings } = trpc.settings.getAll.useQuery();
 
   useEffect(() => {
+    setIsLoading(false);
     if (settings?.whatsapp_support_link) {
       setWhatsappLink(settings.whatsapp_support_link);
-      setIsVisible(true);
     }
   }, [settings]);
-
-  if (!isVisible || !whatsappLink) {
-    return null;
-  }
 
   const handleClick = () => {
     // Ensure the link is a valid WhatsApp URL
@@ -34,7 +30,7 @@ export function FloatingWhatsApp() {
   return (
     <button
       onClick={handleClick}
-      className="fixed bottom-8 right-8 z-40 bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-lg transition-all duration-300 hover:scale-110 flex items-center justify-center"
+      className="fixed bottom-8 right-8 z-40 bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-lg transition-all duration-300 hover:scale-110 flex items-center justify-center animate-pulse"
       title="Fale conosco no WhatsApp"
       aria-label="WhatsApp support"
     >

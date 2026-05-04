@@ -65,7 +65,7 @@ const features = [
 ];
 
 const channels = [
-  { name: "WhatsApp", logo: "/manus-storage/whatsapp-logo_82d0160e.png" },
+  { name: "WhatsApp", logo: "/manus-storage/whatsapp-logo-clean_1c1a3bbf.png" },
   { name: "Instagram", logo: "/manus-storage/instagram-logo_52b32d52.png" },
   { name: "Messenger", logo: "/manus-storage/messenger-logo_654588e8.png" },
 ];

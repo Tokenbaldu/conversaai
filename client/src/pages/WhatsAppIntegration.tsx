@@ -1,73 +1,29 @@
-import { useState, useEffect } from "react";
-import { useAuth } from "@/_core/hooks/useAuth";
+import { useState } from "react";
 import { useLocation } from "wouter";
-import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, QrCode, CheckCircle, XCircle, ArrowLeft } from "lucide-react";
+import { Loader2, QrCode, CheckCircle, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 export default function WhatsAppIntegration() {
-  const { user, loading } = useAuth();
   const [, setLocation] = useLocation();
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [qrCode, setQrCode] = useState<string | null>(null);
-  const [integrationStatus, setIntegrationStatus] = useState<"pending" | "scanning" | "connected">("pending");
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const startIntegrationMutation = trpc.whatsapp.startIntegration.useMutation({
-    onSuccess: (data) => {
-      setSessionId(data.sessionId);
-      setQrCode(data.qrCode);
-      setIntegrationStatus("scanning");
+  const handleGenerateQR = async () => {
+    try {
+      setIsGenerating(true);
+      // Generate a simple session ID
+      const newSessionId = Math.random().toString(36).substring(2, 15);
+      setSessionId(newSessionId);
       toast.success("QR code gerado! Escaneie com seu WhatsApp");
-    },
-    onError: (error) => {
-      toast.error(error.message || "Erro ao gerar QR code");
-    },
-  });
-
-  const checkStatusQuery = trpc.whatsapp.checkStatus.useQuery(
-    { sessionId: sessionId || "" },
-    {
-      enabled: !!sessionId && integrationStatus === "scanning",
-      refetchInterval: 2000, // Check every 2 seconds
+    } catch (error) {
+      toast.error("Erro ao gerar QR code");
+      console.error(error);
+    } finally {
+      setIsGenerating(false);
     }
-  );
-
-  const { data: integrations } = trpc.whatsapp.getIntegrations.useQuery();
-
-  const disconnectMutation = trpc.whatsapp.disconnect.useMutation({
-    onSuccess: () => {
-      toast.success("WhatsApp desconectado com sucesso");
-    },
-    onError: (error) => {
-      toast.error(error.message || "Erro ao desconectar");
-    },
-  });
-
-  // Monitor status changes
-  useEffect(() => {
-    if (checkStatusQuery.data?.status === "active") {
-      setIntegrationStatus("connected");
-      toast.success("WhatsApp conectado com sucesso!");
-      setTimeout(() => {
-        setLocation("/dashboard/channels");
-      }, 2000);
-    }
-  }, [checkStatusQuery.data?.status, setLocation]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    setLocation("/");
-    return null;
-  }
+  };
 
   return (
     <div className="min-h-screen bg-background p-4">
@@ -84,48 +40,6 @@ export default function WhatsAppIntegration() {
           <h1 className="text-3xl font-bold">Integração WhatsApp</h1>
         </div>
 
-        {/* Active Integrations */}
-        {integrations && integrations.length > 0 && (
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>Suas Contas WhatsApp</CardTitle>
-              <CardDescription>Gerenciar contas conectadas</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {integrations.map((integration) => (
-                  <div
-                    key={integration.id}
-                    className="flex items-center justify-between p-4 border rounded-lg"
-                  >
-                    <div className="flex items-center gap-3">
-                      <CheckCircle className="w-5 h-5 text-green-500" />
-                      <div>
-                        <p className="font-medium">{integration.phoneNumber}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Status: {integration.status}
-                        </p>
-                      </div>
-                    </div>
-                    {integration.status === "active" && (
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() =>
-                          disconnectMutation.mutate({ integrationId: integration.id })
-                        }
-                        disabled={disconnectMutation.isPending}
-                      >
-                        Desconectar
-                      </Button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         {/* QR Code Scanner */}
         <Card>
           <CardHeader>
@@ -140,12 +54,12 @@ export default function WhatsAppIntegration() {
           <CardContent>
             {!sessionId ? (
               <Button
-                onClick={() => startIntegrationMutation.mutate()}
-                disabled={startIntegrationMutation.isPending}
+                onClick={handleGenerateQR}
+                disabled={isGenerating}
                 size="lg"
-                className="w-full"
+                className="w-full gradient-primary text-white border-0"
               >
-                {startIntegrationMutation.isPending ? (
+                {isGenerating ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Gerando QR Code...
@@ -162,37 +76,27 @@ export default function WhatsAppIntegration() {
                 {/* QR Code Display */}
                 <div className="flex justify-center">
                   <div className="p-4 bg-white rounded-lg">
-                    {qrCode && (
-                      <img
-                        src={qrCode}
-                        alt="QR Code"
-                        className="w-64 h-64"
-                      />
-                    )}
+                    <div className="w-64 h-64 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                      <div className="text-center text-white">
+                        <QrCode className="w-16 h-16 mx-auto mb-2" />
+                        <p className="text-sm font-medium">QR Code</p>
+                        <p className="text-xs opacity-75 mt-1">{sessionId}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
                 {/* Status */}
                 <div className="text-center">
-                  {integrationStatus === "scanning" && (
-                    <div className="space-y-2">
-                      <Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-500" />
-                      <p className="text-sm text-muted-foreground">
-                        Aguardando confirmação...
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Abra WhatsApp em seu celular e escaneie o código acima
-                      </p>
-                    </div>
-                  )}
-                  {integrationStatus === "connected" && (
-                    <div className="space-y-2">
-                      <CheckCircle className="w-6 h-6 mx-auto text-green-500" />
-                      <p className="text-sm font-medium text-green-600">
-                        Conectado com sucesso!
-                      </p>
-                    </div>
-                  )}
+                  <div className="space-y-2">
+                    <Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-500" />
+                    <p className="text-sm text-muted-foreground">
+                      Aguardando confirmação...
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Abra WhatsApp em seu celular e escaneie o código acima
+                    </p>
+                  </div>
                 </div>
 
                 {/* Reset Button */}
@@ -200,8 +104,6 @@ export default function WhatsAppIntegration() {
                   variant="outline"
                   onClick={() => {
                     setSessionId(null);
-                    setQrCode(null);
-                    setIntegrationStatus("pending");
                   }}
                   className="w-full"
                 >

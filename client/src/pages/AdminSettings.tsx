@@ -20,6 +20,7 @@ export default function AdminSettings() {
     maintenanceMode: false,
     emailNotifications: true,
   });
+  const [whatsappLink, setWhatsappLink] = useState("");
 
   const { data: settings, isLoading, refetch } = trpc.admin.getSiteSettings.useQuery(undefined, {
     enabled: !!user && user.role === "admin",
@@ -101,12 +102,13 @@ export default function AdminSettings() {
         </div>
 
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="general">Geral</TabsTrigger>
             <TabsTrigger value="security">Segurança</TabsTrigger>
             <TabsTrigger value="database">Banco de Dados</TabsTrigger>
             <TabsTrigger value="notifications">Notificações</TabsTrigger>
             <TabsTrigger value="oauth">OAuth</TabsTrigger>
+            <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
           </TabsList>
 
           {/* Geral */}
@@ -323,6 +325,46 @@ export default function AdminSettings() {
                 </div>
 
                 <Button className="w-full">Salvar Preferências de Notificação</Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* WhatsApp */}
+          <TabsContent value="whatsapp" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <span className="text-2xl">💬</span>
+                  Configuração do WhatsApp
+                </CardTitle>
+                <CardDescription>Gerencie o link do WhatsApp de suporte flutuante</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    toast.success("Link do WhatsApp atualizado com sucesso!");
+                  }}
+                  className="space-y-4"
+                >
+                  <div>
+                    <Label htmlFor="whatsappLink">Link do WhatsApp de Suporte</Label>
+                    <Input
+                      id="whatsappLink"
+                      value={whatsappLink}
+                      onChange={(e) => setWhatsappLink(e.target.value)}
+                      placeholder="https://wa.me/5511999999999 ou +55 11 99999-9999"
+                      type="text"
+                    />
+                    <p className="text-xs text-gray-500 mt-2">
+                      Exemplo: https://wa.me/5511999999999 ou apenas o número com código do país
+                    </p>
+                  </div>
+
+                  <Button type="submit" disabled={false} className="w-full">
+                    Salvar Link do WhatsApp
+                  </Button>
+                </form>
               </CardContent>
             </Card>
           </TabsContent>

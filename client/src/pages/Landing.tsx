@@ -100,7 +100,7 @@ const plans = [
     periodAnnual: "/ano",
     description: "Para agências e grandes times",
     features: ["100.000 contatos", "500 fluxos ativos", "1.000 broadcasts/mês", "20 canais conectados", "IA avançada ativa", "White label", "Multi-contas", "Suporte dedicado"],
-    cta: "Falar com vendas",
+    cta: "Assinar Agency",
     highlight: false,
   },
 ];
@@ -336,12 +336,8 @@ export default function Landing() {
                 </ul>
                 <a href={getLoginUrl()}>
                   <Button
-                    className={`w-full ${
-                      plan.highlight
-                        ? "gradient-primary text-white border-0 glow-sm"
-                        : "border-border hover:bg-secondary"
-                    }`}
-                    variant={plan.highlight ? "default" : "outline"}
+                    className="w-full gradient-primary text-white border-0 glow-sm"
+                    variant="default"
                   >
                     {plan.cta}
                   </Button>
@@ -367,7 +363,7 @@ export default function Landing() {
               </p>
               <a href={getLoginUrl()}>
                 <Button size="lg" className="gradient-primary text-white border-0 glow-primary px-10 h-12 text-base font-semibold">
-                  Começar agora — é grátis
+                  Comece agora por R$ 10,00
                   <ArrowRight className="h-5 w-5 ml-2" />
                 </Button>
               </a>

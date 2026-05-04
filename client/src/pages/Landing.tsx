@@ -1,4 +1,5 @@
 import { getLoginUrl } from "@/const";
+import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -65,7 +66,7 @@ const features = [
 ];
 
 const channels = [
-  { name: "WhatsApp", logo: "/manus-storage/whatsapp-logo-clean-v2_375269eb.png" },
+  { name: "WhatsApp", logo: "/manus-storage/whatsapp-logo-black-bg_24b1d14b.png" },
   { name: "Instagram", logo: "/manus-storage/instagram-logo_52b32d52.png" },
   { name: "Messenger", logo: "/manus-storage/messenger-logo_654588e8.png" },
 ];
@@ -106,6 +107,7 @@ const plans = [
 
 export default function Landing() {
   const { isAuthenticated } = useAuth();
+  const [isAnnual, setIsAnnual] = useState(false);
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -265,9 +267,25 @@ export default function Landing() {
             <h2 className="text-4xl font-bold mb-4">
               Preços <span className="gradient-text">transparentes</span>
             </h2>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-lg mb-8">
               Comece gratuitamente e escale conforme seu negócio cresce.
             </p>
+            
+            <div className="flex items-center justify-center gap-4 mb-8">
+              <span className={`text-sm font-medium ${!isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>Mensal</span>
+              <button
+                onClick={() => setIsAnnual(!isAnnual)}
+                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${isAnnual ? 'bg-primary' : 'bg-border'}`}
+              >
+                <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${isAnnual ? 'translate-x-7' : 'translate-x-1'}`} />
+              </button>
+              <span className={`text-sm font-medium ${isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>Anual</span>
+              {isAnnual && (
+                <Badge className="ml-2 bg-green-500/20 text-green-400 border-green-500/30">
+                  Economize até 20%
+                </Badge>
+              )}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -291,15 +309,20 @@ export default function Landing() {
                 <div className="mb-6">
                   <h3 className="font-bold text-xl text-foreground mb-1">{plan.name}</h3>
                   <p className="text-muted-foreground text-sm mb-4">{plan.description}</p>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-bold text-foreground">{plan.price}</span>
-                    <span className="text-muted-foreground text-sm">{plan.period}</span>
-                  </div>
-                  {plan.priceAnnual && (
-                    <div className="flex items-baseline gap-1 mt-2">
-                      <span className="text-sm text-muted-foreground">ou</span>
-                      <span className="text-2xl font-bold text-foreground">{plan.priceAnnual}</span>
+                  {!isAnnual ? (
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-3xl font-bold text-foreground">{plan.price}</span>
+                      <span className="text-muted-foreground text-sm">{plan.period}</span>
+                    </div>
+                  ) : plan.priceAnnual ? (
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-3xl font-bold text-foreground">{plan.priceAnnual}</span>
                       <span className="text-muted-foreground text-sm">{plan.periodAnnual}</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-3xl font-bold text-foreground">{plan.price}</span>
+                      <span className="text-muted-foreground text-sm">{plan.period}</span>
                     </div>
                   )}
                 </div>

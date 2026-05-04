@@ -12,9 +12,11 @@ import {
   Plus,
   Trash2,
   X,
+  QrCode,
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useLocation } from "wouter";
 
 interface Channel {
   id: number;
@@ -69,8 +71,7 @@ export default function Integrations() {
   const utils = trpc.useUtils();
   const [showAuthModal, setShowAuthModal] = useState<string | undefined>(undefined);
   const [authData, setAuthData] = useState<Record<string, string>>({});
-
-
+  const [, setLocation] = useLocation();
 
   // Criar um mapa de canais por tipo, mantendo apenas o primeiro de cada tipo
   const connectedChannels: Record<string, Channel> = {};
@@ -80,7 +81,6 @@ export default function Integrations() {
     }
   });
 
-  
   // Também criar um mapa por ID para referência rápida
   const channelsById: Record<number, Channel> = {};
   channels.forEach((ch: Channel) => {
@@ -89,6 +89,12 @@ export default function Integrations() {
 
   const handleConnect = async (channelId: string) => {
     try {
+      // Se for WhatsApp, redirecionar para página de integração com QR code
+      if (channelId === "whatsapp") {
+        setLocation("/channels/whatsapp");
+        return;
+      }
+
       const channelType = channelId as "whatsapp" | "instagram" | "messenger";
       const integration = integrations.find((i) => i.id === channelId);
 
@@ -110,22 +116,22 @@ export default function Integrations() {
 
   const handleDisconnect = async (channelId: number) => {
     try {
-      if (!channelId || typeof channelId !== 'number') {
+      if (!channelId || typeof channelId !== "number") {
         throw new Error(`ID invalido: ${channelId}`);
       }
-      
+
       // Encontrar o tipo do canal que será desconectado
       const channelToDelete = channels.find((ch: Channel) => ch.id === channelId);
       if (!channelToDelete) {
-        throw new Error('Canal nao encontrado');
+        throw new Error("Canal nao encontrado");
       }
-      
+
       // Deletar TODOS os canais do mesmo tipo
       const channelsOfSameType = channels.filter((ch: Channel) => ch.type === channelToDelete.type);
       for (const ch of channelsOfSameType) {
         await deleteChannel.mutateAsync({ id: ch.id });
       }
-      
+
       await utils.channels.list.invalidate();
       toast.success("Canal desconectado com sucesso!");
     } catch (error) {
@@ -245,13 +251,13 @@ export default function Integrations() {
                             if (connected?.id) {
                               handleDisconnect(connected.id);
                             } else {
-                              toast.error('ID do canal não encontrado');
+                              toast.error("ID do canal não encontrado");
                             }
                           }}
                           disabled={deleteChannel.isPending}
                         >
                           <Trash2 className="h-4 w-4 mr-2" />
-                          {deleteChannel.isPending ? 'Desconectando...' : 'Desconectar'}
+                          {deleteChannel.isPending ? "Desconectando..." : "Desconectar"}
                         </Button>
                         <Button variant="outline" className="border-border" asChild>
                           <a href={integration.docs} target="_blank" rel="noopener noreferrer">
@@ -263,11 +269,20 @@ export default function Integrations() {
                       <>
                         <Button
                           className="gradient-primary text-white border-0 flex-1"
-                          onClick={() => setShowAuthModal(integration.id)}
+                          onClick={() => handleConnect(integration.id)}
                           disabled={createChannel.isPending}
                         >
-                          <Plus className="h-4 w-4 mr-2" />
-                          Conectar
+                          {integration.id === "whatsapp" ? (
+                            <>
+                              <QrCode className="h-4 w-4 mr-2" />
+                              Conectar com QR Code
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="h-4 w-4 mr-2" />
+                              Conectar
+                            </>
+                          )}
                         </Button>
                         <Button variant="outline" className="border-border" asChild>
                           <a href={integration.docs} target="_blank" rel="noopener noreferrer">
@@ -282,89 +297,6 @@ export default function Integrations() {
             );
           })}
         </div>
-
-        {/* Auth Modal */}
-        {showAuthModal !== undefined && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <Card className="bg-card border-border w-full max-w-md">
-              <CardHeader>
-                <CardTitle>
-                  Conectar {showAuthModal ? integrations.find((i) => i.id === showAuthModal)?.name : ""}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground">Access Token</label>
-                  <input
-                    type="password"
-                    placeholder="Cole seu access token aqui"
-                    className="w-full px-3 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground"
-                    value={authData[`${showAuthModal}_token`] || ""}
-                    onChange={(e) =>
-                      setAuthData({
-                        ...authData,
-                        [`${showAuthModal}_token`]: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground">ID da Conta</label>
-                  <input
-                    type="text"
-                    placeholder="ID da conta ou número de telefone"
-                    className="w-full px-3 py-2 bg-secondary border border-border rounded-lg text-sm text-foreground placeholder-muted-foreground"
-                    value={authData[`${showAuthModal}_account`] || ""}
-                    onChange={(e) =>
-                      setAuthData({
-                        ...authData,
-                        [`${showAuthModal}_account`]: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="bg-blue-400/5 border border-blue-400/20 rounded-lg p-3">
-                  <p className="text-xs text-blue-400 font-medium mb-1">Como obter as credenciais?</p>
-                  <p className="text-xs text-muted-foreground">
-                    Visite a{" "}
-                    <a
-                      href={integrations.find((i) => i.id === showAuthModal)?.docs}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline"
-                    >
-                      documentação oficial
-                    </a>{" "}
-                    para obter seu access token.
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    className="border-border flex-1"
-                    onClick={() => {
-                      setShowAuthModal(undefined);
-                      setAuthData({});
-                    }}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button
-                    className="gradient-primary text-white border-0 flex-1"
-                    onClick={() => handleConnect(showAuthModal)}
-                    disabled={
-                      !authData[`${showAuthModal}_token`] ||
-                      !authData[`${showAuthModal}_account`] ||
-                      createChannel.isPending
-                    }
-                  >
-                    Conectar
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
       </div>
     </AppLayout>
   );

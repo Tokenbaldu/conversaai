@@ -347,3 +347,23 @@ export const siteSettings = mysqlTable("site_settings", {
 
 export type SiteSetting = typeof siteSettings.$inferSelect;
 export type InsertSiteSetting = typeof siteSettings.$inferInsert;
+
+// ─── WhatsApp Integration ────────────────────────────────────────────────────
+export const whatsappIntegrations = mysqlTable("whatsapp_integrations", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  phoneNumber: varchar("phoneNumber", { length: 20 }).notNull(),
+  waId: varchar("waId", { length: 64 }).notNull().unique(),
+  accessToken: text("accessToken").notNull(),
+  refreshToken: text("refreshToken"),
+  businessAccountId: varchar("businessAccountId", { length: 64 }),
+  status: mysqlEnum("status", ["pending", "active", "disconnected"]).default("pending").notNull(),
+  qrCode: text("qrCode"), // Base64 encoded QR code
+  sessionId: varchar("sessionId", { length: 64 }).unique(),
+  expiresAt: timestamp("expiresAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type WhatsappIntegration = typeof whatsappIntegrations.$inferSelect;
+export type InsertWhatsappIntegration = typeof whatsappIntegrations.$inferInsert;

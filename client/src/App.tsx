@@ -28,6 +28,7 @@ import AdminDatabase from "./pages/AdminDatabase";
 import AdminOAuth from "./pages/AdminOAuth";
 import { PublicMetrics } from "./pages/PublicMetrics";
 import { FloatingWhatsApp } from "./components/FloatingWhatsApp";
+import WhatsAppIntegration from "./pages/WhatsAppIntegration";
 
 
 function Router() {
@@ -46,6 +47,7 @@ function Router() {
       <Route path="/analytics" component={Analytics} />
       <Route path="/templates" component={Templates} />
       <Route path="/channels" component={Channels} />
+      <Route path="/channels/whatsapp" component={WhatsAppIntegration} />
       <Route path="/plans" component={Plans} />
       <Route path="/ai" component={AIPage} />
       <Route path="/settings" component={Settings} />

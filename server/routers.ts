@@ -18,6 +18,7 @@ import { oauthRouter } from "./routers/oauth";
 import { adminRouter } from "./routers/admin";
 import { metricsRouter } from "./routers/metrics";
 import { settingsRouter } from "./routers/settings";
+import { whatsappRouter } from "./routers/whatsapp";
 
 
 export const appRouter = router({
@@ -46,6 +47,7 @@ export const appRouter = router({
   admin: adminRouter,
   metrics: metricsRouter,
   settings: settingsRouter,
+  whatsapp: whatsappRouter,
 
 });
 

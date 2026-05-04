@@ -142,7 +142,7 @@ export default function Landing() {
                 </a>
                 <a href={getLoginUrl()}>
                   <Button size="sm" className="gradient-primary text-white border-0 glow-sm">
-                    Começar grátis
+                    Comece agora
                   </Button>
                 </a>
               </>
@@ -175,7 +175,7 @@ export default function Landing() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a href={getLoginUrl()}>
               <Button size="lg" className="gradient-primary text-white border-0 glow-primary px-8 h-12 text-base font-semibold">
-                Começar gratuitamente
+                Comece agora
                 <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
             </a>

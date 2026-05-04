@@ -72,18 +72,20 @@ const channels = [
 
 const plans = [
   {
-    name: "Free",
-    price: "R$ 0",
-    period: "/mês",
-    description: "Para começar a explorar",
-    features: ["500 contatos", "3 fluxos ativos", "2 broadcasts/mês", "1 canal conectado", "Suporte por email"],
-    cta: "Começar grátis",
+    name: "Starter",
+    price: "R$ 10",
+    period: "/mês (1º mês)",
+    description: "Teste a plataforma por 30 dias",
+    features: ["500 contatos", "3 fluxos ativos", "2 broadcasts/mês", "1 canal conectado", "Suporte por email", "Após 30 dias, upgrade obrigatório para Pro"],
+    cta: "Começar por R$ 10",
     highlight: false,
   },
   {
     name: "Pro",
     price: "R$ 97",
     period: "/mês",
+    priceAnnual: "R$ 920",
+    periodAnnual: "/ano",
     description: "Para negócios em crescimento",
     features: ["10.000 contatos", "50 fluxos ativos", "100 broadcasts/mês", "5 canais conectados", "IA avançada ativa", "Suporte prioritário"],
     cta: "Assinar Pro",
@@ -91,8 +93,10 @@ const plans = [
   },
   {
     name: "Agency",
-    price: "R$ 297",
+    price: "R$ 120",
     period: "/mês",
+    priceAnnual: "R$ 900",
+    periodAnnual: "/ano",
     description: "Para agências e grandes times",
     features: ["100.000 contatos", "500 fluxos ativos", "1.000 broadcasts/mês", "20 canais conectados", "IA avançada ativa", "White label", "Multi-contas", "Suporte dedicado"],
     cta: "Falar com vendas",
@@ -291,6 +295,13 @@ export default function Landing() {
                     <span className="text-3xl font-bold text-foreground">{plan.price}</span>
                     <span className="text-muted-foreground text-sm">{plan.period}</span>
                   </div>
+                  {plan.priceAnnual && (
+                    <div className="flex items-baseline gap-1 mt-2">
+                      <span className="text-sm text-muted-foreground">ou</span>
+                      <span className="text-2xl font-bold text-foreground">{plan.priceAnnual}</span>
+                      <span className="text-muted-foreground text-sm">{plan.periodAnnual}</span>
+                    </div>
+                  )}
                 </div>
                 <ul className="space-y-3 mb-6">
                   {plan.features.map((f) => (

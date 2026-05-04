@@ -22,6 +22,15 @@ export default function AdminSettings() {
   });
   const [whatsappLink, setWhatsappLink] = useState("");
 
+  const updateWhatsAppMutation = trpc.settings.update.useMutation({
+    onSuccess: () => {
+      toast.success("Link do WhatsApp atualizado com sucesso!");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao atualizar link do WhatsApp");
+    },
+  });
+
   const { data: settings, isLoading, refetch } = trpc.admin.getSiteSettings.useQuery(undefined, {
     enabled: !!user && user.role === "admin",
   });
@@ -49,6 +58,10 @@ export default function AdminSettings() {
         maintenanceMode: settings.maintenanceMode || false,
         emailNotifications: settings.emailNotifications !== false,
       });
+      // Load WhatsApp link from settings
+      if ((settings as any).whatsapp_support_link) {
+        setWhatsappLink((settings as any).whatsapp_support_link);
+      }
     }
   }, [settings]);
 
@@ -343,7 +356,15 @@ export default function AdminSettings() {
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
-                    toast.success("Link do WhatsApp atualizado com sucesso!");
+                    if (!whatsappLink.trim()) {
+                      toast.error("Por favor, insira um link válido");
+                      return;
+                    }
+                    updateWhatsAppMutation.mutate({
+                      key: "whatsapp_support_link",
+                      value: whatsappLink,
+                      description: "Link do WhatsApp de suporte flutuante",
+                    });
                   }}
                   className="space-y-4"
                 >
@@ -361,7 +382,8 @@ export default function AdminSettings() {
                     </p>
                   </div>
 
-                  <Button type="submit" disabled={false} className="w-full">
+                  <Button type="submit" disabled={updateWhatsAppMutation.isPending} className="w-full">
+                    {updateWhatsAppMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                     Salvar Link do WhatsApp
                   </Button>
                 </form>

@@ -65,9 +65,9 @@ const features = [
 ];
 
 const channels = [
-  { name: "WhatsApp", color: "bg-emerald-500", icon: "💬" },
-  { name: "Instagram", color: "bg-gradient-to-br from-pink-500 to-purple-600", icon: "📸" },
-  { name: "Messenger", color: "bg-blue-500", icon: "💙" },
+  { name: "WhatsApp", logo: "/manus-storage/whatsapp-logo_82d0160e.png" },
+  { name: "Instagram", logo: "/manus-storage/instagram-logo_52b32d52.png" },
+  { name: "Messenger", logo: "/manus-storage/messenger-logo_654588e8.png" },
 ];
 
 const plans = [
@@ -202,13 +202,13 @@ export default function Landing() {
           <p className="text-center text-sm text-muted-foreground mb-8 uppercase tracking-widest font-medium">
             Conecte seus canais favoritos
           </p>
-          <div className="flex justify-center gap-6 flex-wrap">
+          <div className="flex justify-center gap-8 flex-wrap">
             {channels.map((ch) => (
               <div
                 key={ch.name}
                 className="flex items-center gap-3 px-6 py-3 rounded-xl border border-border bg-card hover:border-primary/30 transition-all duration-200"
               >
-                <span className="text-2xl">{ch.icon}</span>
+                <img src={ch.logo} alt={ch.name} className="h-8 w-8 object-contain" />
                 <span className="font-semibold text-foreground">{ch.name}</span>
               </div>
             ))}

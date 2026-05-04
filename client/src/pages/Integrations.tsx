@@ -2,14 +2,6 @@ import AppLayout from "@/components/AppLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
 import {
   Check,
@@ -22,7 +14,6 @@ import {
   X,
   QrCode,
 } from "lucide-react";
-import { useState } from "react";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
 
@@ -73,15 +64,11 @@ const integrations = [
 ];
 
 export default function Integrations() {
-  const { data: channels = [], isLoading } = trpc.channels.list.useQuery();
-  const createChannel = trpc.channels.create.useMutation();
+  const { data: channels = [] } = trpc.channels.list.useQuery();
   const deleteChannel = trpc.channels.delete.useMutation();
   const utils = trpc.useUtils();
-  const [showAuthModal, setShowAuthModal] = useState<string | undefined>(undefined);
-  const [authData, setAuthData] = useState<Record<string, string>>({});
   const [, setLocation] = useLocation();
 
-  // Criar um mapa de canais por tipo, mantendo apenas o primeiro de cada tipo
   const connectedChannels: Record<string, Channel> = {};
   channels.forEach((ch: Channel) => {
     if (!connectedChannels[ch.type]) {
@@ -89,52 +76,25 @@ export default function Integrations() {
     }
   });
 
-  // Também criar um mapa por ID para referência rápida
-  const channelsById: Record<number, Channel> = {};
-  channels.forEach((ch: Channel) => {
-    channelsById[ch.id] = ch;
-  });
-
-  const handleConnect = async (channelId: string) => {
-    try {
-      // Se for WhatsApp, redirecionar para página de integração com QR code
-      if (channelId === "whatsapp") {
-        setLocation("/channels/whatsapp");
-        return;
-      }
-
-      const channelType = channelId as "whatsapp" | "instagram" | "messenger";
-      const integration = integrations.find((i) => i.id === channelId);
-
-      await createChannel.mutateAsync({
-        type: channelType,
-        name: integration?.name || channelId,
-        accessToken: authData[`${channelId}_token`],
-        accountId: authData[`${channelId}_account`],
-      });
-
-      utils.channels.list.invalidate();
-      toast.success(`${integration?.name} conectado com sucesso!`);
-      setShowAuthModal(undefined);
-      setAuthData({});
-    } catch (error) {
-      toast.error("Erro ao conectar canal");
+  const handleConnect = (channelId: string) => {
+    if (channelId === "whatsapp") {
+      setLocation("/channels/whatsapp");
+    } else if (channelId === "instagram") {
+      toast.info("Redirecionando para autenticação do Instagram...");
+      // TODO: Implementar fluxo de autenticação Instagram
+    } else if (channelId === "messenger") {
+      toast.info("Redirecionando para autenticação do Messenger...");
+      // TODO: Implementar fluxo de autenticação Messenger
     }
   };
 
   const handleDisconnect = async (channelId: number) => {
     try {
-      if (!channelId || typeof channelId !== "number") {
-        throw new Error(`ID invalido: ${channelId}`);
-      }
-
-      // Encontrar o tipo do canal que será desconectado
       const channelToDelete = channels.find((ch: Channel) => ch.id === channelId);
       if (!channelToDelete) {
-        throw new Error("Canal nao encontrado");
+        throw new Error("Canal não encontrado");
       }
 
-      // Deletar TODOS os canais do mesmo tipo
       const channelsOfSameType = channels.filter((ch: Channel) => ch.type === channelToDelete.type);
       for (const ch of channelsOfSameType) {
         await deleteChannel.mutateAsync({ id: ch.id });
@@ -255,13 +215,7 @@ export default function Integrations() {
                         <Button
                           variant="outline"
                           className="border-border flex-1"
-                          onClick={() => {
-                            if (connected?.id) {
-                              handleDisconnect(connected.id);
-                            } else {
-                              toast.error("ID do canal não encontrado");
-                            }
-                          }}
+                          onClick={() => handleDisconnect(connected.id)}
                           disabled={deleteChannel.isPending}
                         >
                           <Trash2 className="h-4 w-4 mr-2" />
@@ -277,14 +231,7 @@ export default function Integrations() {
                       <>
                         <Button
                           className="gradient-primary text-white border-0 flex-1"
-                          onClick={() => {
-                            if (integration.id === "whatsapp") {
-                              handleConnect(integration.id);
-                            } else {
-                              setShowAuthModal(integration.id);
-                            }
-                          }}
-                          disabled={createChannel.isPending}
+                          onClick={() => handleConnect(integration.id)}
                         >
                           {integration.id === "whatsapp" ? (
                             <>
@@ -312,80 +259,6 @@ export default function Integrations() {
           })}
         </div>
       </div>
-
-      {/* Auth Modal */}
-      <Dialog open={!!showAuthModal} onOpenChange={(open) => !open && setShowAuthModal(undefined)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>
-              Conectar {integrations.find((i) => i.id === showAuthModal)?.name}
-            </DialogTitle>
-            <DialogDescription>
-              Insira suas credenciais para conectar o canal
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium text-foreground">Access Token</label>
-              <Input
-                placeholder="Cole seu access token aqui"
-                value={authData[`${showAuthModal}_token`] || ""}
-                onChange={(e) =>
-                  setAuthData({
-                    ...authData,
-                    [`${showAuthModal}_token`]: e.target.value,
-                  })
-                }
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-foreground">ID da Conta</label>
-              <Input
-                placeholder="ID da conta ou número de telefone"
-                value={authData[`${showAuthModal}_account`] || ""}
-                onChange={(e) =>
-                  setAuthData({
-                    ...authData,
-                    [`${showAuthModal}_account`]: e.target.value,
-                  })
-                }
-                className="mt-1"
-              />
-            </div>
-
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-xs text-blue-800">
-                <strong>Como obter as credenciais?</strong>
-                <br />
-                Visite a documentação oficial do canal para obter seu access token e ID da conta.
-              </p>
-            </div>
-
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => {
-                  setShowAuthModal(undefined);
-                  setAuthData({});
-                }}
-              >
-                Cancelar
-              </Button>
-              <Button
-                className="gradient-primary text-white border-0 flex-1"
-                onClick={() => handleConnect(showAuthModal || "")}
-                disabled={createChannel.isPending}
-              >
-                {createChannel.isPending ? "Conectando..." : "Conectar"}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </AppLayout>
   );
 }

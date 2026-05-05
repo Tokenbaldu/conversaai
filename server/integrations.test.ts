@@ -288,7 +288,7 @@ describe("OAuth Integration Router", () => {
         type: "whatsapp",
         name: "My WhatsApp Business",
         accessToken: "test_token_123",
-        accountId: "1234567890",
+        accountId: `test_${Date.now()}_1234567890`,
       });
 
       expect(result).toHaveProperty("id");

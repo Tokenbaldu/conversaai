@@ -399,4 +399,12 @@ export const adminRouter = router({
 
       return { success: true };
     }),
+
+  // ─── LIMPEZA DE DADOS ───────────────────────────────────────────────────
+  cleanupAllChannels: adminProcedure.mutation(async () => {
+    const db = await getDb();
+    if (!db) throw new Error("DB unavailable");
+    await db.delete(channels);
+    return { success: true, message: "Todos os canais foram removidos" };
+  }),
 });

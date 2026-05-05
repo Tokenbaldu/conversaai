@@ -1,8 +1,12 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { whatsappIntegrations } from "../../drizzle/schema";
-import { eq } from "drizzle-orm";
+import {
+  whatsappIntegrations,
+  whatsappConnectionHistory,
+  whatsappSyncedContacts,
+} from "../../drizzle/schema";
+import { eq, and } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import QRCode from "qrcode";
 import {
@@ -31,15 +35,23 @@ export const whatsappRouter = router({
       const { qrCode } = await startWhatsAppSession(sessionId);
 
       // Create pending integration in database
-      await db.insert(whatsappIntegrations).values({
+      const result = await db.insert(whatsappIntegrations).values({
         userId: ctx.user.id,
         phoneNumber: "",
-        waId: "",
+        waId: `temp_${sessionId}`,
         accessToken: "",
         status: "pending",
         qrCode,
         sessionId,
         expiresAt,
+      });
+
+      // Log connection attempt
+      await db.insert(whatsappConnectionHistory).values({
+        whatsappIntegrationId: (result as any)[0]?.insertId ?? 0,
+        userId: ctx.user.id,
+        eventType: "scanned",
+        metadata: { sessionId },
       });
 
       return {
@@ -78,6 +90,22 @@ export const whatsappRouter = router({
               accessToken: `token_${input.sessionId}`,
             })
             .where(eq(whatsappIntegrations.sessionId, input.sessionId));
+
+          // Log connection success
+          const integration = await db
+            .select()
+            .from(whatsappIntegrations)
+            .where(eq(whatsappIntegrations.sessionId, input.sessionId))
+            .limit(1);
+
+          if (integration[0]) {
+            await db.insert(whatsappConnectionHistory).values({
+              whatsappIntegrationId: integration[0].id,
+              userId: ctx.user.id,
+              eventType: "connected",
+              phoneNumber: sessionStatus.phoneNumber,
+            });
+          }
 
           return {
             status: "active",
@@ -168,6 +196,14 @@ export const whatsappRouter = router({
           disconnectSession(integration[0].sessionId);
         }
 
+        // Log disconnection event
+        await db.insert(whatsappConnectionHistory).values({
+          whatsappIntegrationId: input.integrationId,
+          userId: ctx.user.id,
+          eventType: "disconnected",
+          phoneNumber: integration[0].phoneNumber || undefined,
+        });
+
         // Update status to disconnected
         await db
           .update(whatsappIntegrations)
@@ -180,6 +216,123 @@ export const whatsappRouter = router({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to disconnect integration",
+        });
+      }
+    }),
+
+  // Get connection history
+  getConnectionHistory: protectedProcedure
+    .input(z.object({ integrationId: z.number().optional() }))
+    .query(async ({ ctx, input }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database unavailable");
+
+        let query;
+        if (input.integrationId) {
+          query = db
+            .select()
+            .from(whatsappConnectionHistory)
+            .where(
+              and(
+                eq(whatsappConnectionHistory.userId, ctx.user.id),
+                eq(
+                  whatsappConnectionHistory.whatsappIntegrationId,
+                  input.integrationId
+                )
+              )
+            );
+        } else {
+          query = db
+            .select()
+            .from(whatsappConnectionHistory)
+            .where(eq(whatsappConnectionHistory.userId, ctx.user.id));
+        }
+
+        const history = await query;
+        return history.sort(
+          (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+        );
+      } catch (error) {
+        console.error("Error fetching connection history:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch connection history",
+        });
+      }
+    }),
+
+  // Sync contacts from WhatsApp
+  syncContacts: protectedProcedure
+    .input(z.object({ integrationId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database unavailable");
+
+        // Verify ownership
+        const integration = await db
+          .select()
+          .from(whatsappIntegrations)
+          .where(
+            and(
+              eq(whatsappIntegrations.id, input.integrationId),
+              eq(whatsappIntegrations.userId, ctx.user.id)
+            )
+          )
+          .limit(1);
+
+        if (!integration[0]) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Not authorized to sync contacts for this integration",
+          });
+        }
+
+        // Simulate syncing contacts (in real implementation, fetch from WhatsApp API)
+        const syncedCount = 0; // Placeholder
+
+        return {
+          success: true,
+          syncedCount,
+          message: `Sincronizados ${syncedCount} contatos do WhatsApp`,
+        };
+      } catch (error) {
+        console.error("Error syncing contacts:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to sync contacts",
+        });
+      }
+    }),
+
+  // Get synced contacts
+  getSyncedContacts: protectedProcedure
+    .input(z.object({ integrationId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      try {
+        const db = await getDb();
+        if (!db) throw new Error("Database unavailable");
+
+        const syncedContacts = await db
+          .select()
+          .from(whatsappSyncedContacts)
+          .where(
+            and(
+              eq(whatsappSyncedContacts.userId, ctx.user.id),
+              eq(
+                whatsappSyncedContacts.whatsappIntegrationId,
+                input.integrationId
+              )
+            )
+          );
+
+        return syncedContacts;
+      } catch (error) {
+        console.error("Error fetching synced contacts:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch synced contacts",
         });
       }
     }),

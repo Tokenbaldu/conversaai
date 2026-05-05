@@ -172,6 +172,20 @@ export default function WhatsAppIntegration() {
           </CardContent>
         </Card>
 
+        {/* Connected Accounts */}
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle>Contas Conectadas</CardTitle>
+            <CardDescription>Gerencie suas contas WhatsApp conectadas</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm text-muted-foreground">
+              <p>Você pode conectar múltiplas contas WhatsApp para gerenciar diferentes números de telefone.</p>
+              <p className="mt-2">Cada conta será sincronizada independentemente com seus contatos.</p>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Instructions */}
         <Card className="mt-8 bg-blue-50 border-blue-200">
           <CardHeader>

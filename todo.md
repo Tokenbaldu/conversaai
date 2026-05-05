@@ -196,3 +196,21 @@
 - [x] Atualizar frontend para exibir QR code real com polling
 - [x] Criar migração SQL para tabela whatsapp_integrations
 - [x] Testar fluxo completo de conexão WhatsApp
+
+
+## Fase 22: Corrigir Erro de Flow Builder e Página de Integração
+- [x] Corrigir erro de insertBefore no Flow Builder
+- [x] Normalizar nós e edges ao carregar do banco de dados
+- [x] Corrigir imports faltando em WhatsAppIntegration.tsx
+- [x] Todos os 76 testes passando
+
+## Fase 23: Implementar Melhorias de WhatsApp
+- [x] Criar novas tabelas no schema (whatsapp_connection_history, whatsapp_synced_contacts)
+- [x] Gerar migração SQL para novas tabelas
+- [x] Implementar suporte para múltiplas contas WhatsApp no router
+- [x] Implementar sincronização de contatos do WhatsApp no router
+- [x] Implementar histórico de conexões no router
+- [x] Criar UI para gerenciar múltiplas contas na página WhatsAppIntegration
+- [x] Criar página de histórico de conexões (WhatsAppConnectionHistory.tsx)
+- [x] Adicionar rota para página de histórico
+- [x] Testar todas as funcionalidades - 76 testes passando

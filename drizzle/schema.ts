@@ -367,3 +367,34 @@ export const whatsappIntegrations = mysqlTable("whatsapp_integrations", {
 
 export type WhatsappIntegration = typeof whatsappIntegrations.$inferSelect;
 export type InsertWhatsappIntegration = typeof whatsappIntegrations.$inferInsert;
+
+// ─── WhatsApp Connection History ────────────────────────────────────────────
+export const whatsappConnectionHistory = mysqlTable("whatsapp_connection_history", {
+  id: int("id").autoincrement().primaryKey(),
+  whatsappIntegrationId: int("whatsappIntegrationId").notNull(),
+  userId: int("userId").notNull(),
+  eventType: mysqlEnum("eventType", ["connected", "disconnected", "failed", "scanned", "expired"]).notNull(),
+  phoneNumber: varchar("phoneNumber", { length: 20 }),
+  errorMessage: text("errorMessage"),
+  metadata: json("metadata"), // Additional context
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type WhatsappConnectionHistory = typeof whatsappConnectionHistory.$inferSelect;
+export type InsertWhatsappConnectionHistory = typeof whatsappConnectionHistory.$inferInsert;
+
+// ─── WhatsApp Synced Contacts ──────────────────────────────────────────────
+export const whatsappSyncedContacts = mysqlTable("whatsapp_synced_contacts", {
+  id: int("id").autoincrement().primaryKey(),
+  whatsappIntegrationId: int("whatsappIntegrationId").notNull(),
+  userId: int("userId").notNull(),
+  contactId: int("contactId").notNull(),
+  waPhoneNumber: varchar("waPhoneNumber", { length: 20 }).notNull(),
+  waJid: varchar("waJid", { length: 64 }).notNull(),
+  syncedAt: timestamp("syncedAt").defaultNow().notNull(),
+  lastSyncAt: timestamp("lastSyncAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type WhatsappSyncedContact = typeof whatsappSyncedContacts.$inferSelect;
+export type InsertWhatsappSyncedContact = typeof whatsappSyncedContacts.$inferInsert;

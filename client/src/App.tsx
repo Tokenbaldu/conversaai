@@ -29,6 +29,7 @@ import AdminOAuth from "./pages/AdminOAuth";
 import { PublicMetrics } from "./pages/PublicMetrics";
 import { FloatingWhatsApp } from "./components/FloatingWhatsApp";
 import WhatsAppIntegration from "./pages/WhatsAppIntegration";
+import WhatsAppConnectionHistory from "./pages/WhatsAppConnectionHistory";
 
 
 function Router() {
@@ -48,6 +49,7 @@ function Router() {
       <Route path="/templates" component={Templates} />
       <Route path="/channels" component={Channels} />
       <Route path="/channels/whatsapp" component={WhatsAppIntegration} />
+      <Route path="/channels/whatsapp/history" component={WhatsAppConnectionHistory} />
       <Route path="/plans" component={Plans} />
       <Route path="/ai" component={AIPage} />
       <Route path="/settings" component={Settings} />

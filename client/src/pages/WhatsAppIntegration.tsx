@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Loader2, QrCode, CheckCircle, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+import AppLayout from "@/components/AppLayout";
 
 export default function WhatsAppIntegration() {
   const [, setLocation] = useLocation();

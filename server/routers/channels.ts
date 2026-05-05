@@ -97,7 +97,7 @@ export const channelsRouter = router({
     }
     
     let deletedCount = 0;
-    for (const [, ids] of seen) {
+    for (const ids of Array.from(seen.values())) {
       if (ids.length > 1) {
         const idsToDelete = ids.slice(1);
         for (const id of idsToDelete) {

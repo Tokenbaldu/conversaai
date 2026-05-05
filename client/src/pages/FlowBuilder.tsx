@@ -331,11 +331,30 @@ export default function FlowBuilderPage() {
   useEffect(() => {
     if (flow) {
       setFlowName(flow.name);
-      if (flow.nodes) setNodes(flow.nodes as Node[]);
-      if (flow.edges) setEdges(flow.edges as Edge[]);
+      // Normalize nodes to ensure they have valid structure
+      if (flow.nodes && Array.isArray(flow.nodes)) {
+        const normalizedNodes = (flow.nodes as any[]).map(node => ({
+          id: String(node.id || `node-${Date.now()}`),
+          type: node.type || 'messageNode',
+          position: node.position || { x: 0, y: 0 },
+          data: node.data || {},
+        }));
+        setNodes(normalizedNodes);
+      }
+      // Normalize edges to ensure they have valid structure
+      if (flow.edges && Array.isArray(flow.edges)) {
+        const normalizedEdges = (flow.edges as any[]).map(edge => ({
+          id: String(edge.id || `edge-${Date.now()}`),
+          source: String(edge.source),
+          target: String(edge.target),
+          sourceHandle: edge.sourceHandle,
+          targetHandle: edge.targetHandle,
+        }));
+        setEdges(normalizedEdges);
+      }
       if (flow.triggerType) setTriggerType(flow.triggerType);
     }
-  }, [flow]);
+  }, [flow, setNodes, setEdges]);
 
   const onConnect = useCallback(
     (params: Connection) =>

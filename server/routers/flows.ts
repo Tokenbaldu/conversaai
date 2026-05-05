@@ -64,8 +64,29 @@ export const flowsRouter = router({
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("DB unavailable");
-      const { id, ...data } = input;
-      await db.update(flows).set(data as any).where(and(eq(flows.id, id), eq(flows.userId, ctx.user.id)));
+      const { id, nodes, edges, ...data } = input;
+      
+      // Normalize nodes and edges to prevent DOM insertion errors
+      const normalizedData: any = { ...data };
+      if (nodes && Array.isArray(nodes)) {
+        normalizedData.nodes = nodes.map((node: any) => ({
+          id: String(node.id),
+          type: node.type || 'messageNode',
+          position: node.position || { x: 0, y: 0 },
+          data: node.data || {},
+        }));
+      }
+      if (edges && Array.isArray(edges)) {
+        normalizedData.edges = edges.map((edge: any) => ({
+          id: String(edge.id || `edge-${Date.now()}-${Math.random()}`),
+          source: String(edge.source),
+          target: String(edge.target),
+          sourceHandle: edge.sourceHandle || undefined,
+          targetHandle: edge.targetHandle || undefined,
+        }));
+      }
+      
+      await db.update(flows).set(normalizedData).where(and(eq(flows.id, id), eq(flows.userId, ctx.user.id)));
       return { success: true };
     }),
 

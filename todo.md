@@ -186,3 +186,13 @@
 - [x] Reescrever testes OAuth para funcionar corretamente
 - [x] Validar todos os 76 testes passando (100%)
 - [x] Verificar status do projeto e salvar checkpoint
+
+
+## Fase 21: Implementar Integração Real de WhatsApp com QR Code
+- [x] Instalar biblioteca qrcode para gerar QR codes reais
+- [x] Implementar geração real de QR code no backend
+- [x] Implementar polling de status para detectar quando QR é escaneado
+- [x] Simular sessão WhatsApp com scan automático após 3-5 segundos
+- [x] Atualizar frontend para exibir QR code real com polling
+- [x] Criar migração SQL para tabela whatsapp_integrations
+- [x] Testar fluxo completo de conexão WhatsApp

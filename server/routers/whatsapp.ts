@@ -4,30 +4,34 @@ import { getDb } from "../db";
 import { whatsappIntegrations } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
-
-// Mock QR code generation - in production, use a real library
-function generateMockQRCode(): string {
-  // Return a base64 encoded placeholder QR code
-  return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
-}
+import QRCode from "qrcode";
+import {
+  startWhatsAppSession,
+  getSessionStatus,
+  disconnectSession,
+  getQRCode,
+} from "../services/whatsapp-session";
 
 function generateSessionId(): string {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  return Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15);
 }
 
 export const whatsappRouter = router({
-  // Start WhatsApp integration - generates QR code
+  // Start WhatsApp integration - generates real QR code
   startIntegration: protectedProcedure.mutation(async ({ ctx }) => {
     try {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
 
       const sessionId = generateSessionId();
-      const qrCode = generateMockQRCode();
       const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
-      // Create pending integration
-      const result = await db.insert(whatsappIntegrations).values({
+      // Start WhatsApp session with Baileys
+      const { qrCode } = await startWhatsAppSession(sessionId);
+
+      // Create pending integration in database
+      await db.insert(whatsappIntegrations).values({
         userId: ctx.user.id,
         phoneNumber: "",
         waId: "",
@@ -60,6 +64,29 @@ export const whatsappRouter = router({
         const db = await getDb();
         if (!db) throw new Error("Database unavailable");
 
+        // Check session status from Baileys
+        const sessionStatus = getSessionStatus(input.sessionId);
+
+        if (sessionStatus.status === "connected") {
+          // Update database with connected status
+          await db
+            .update(whatsappIntegrations)
+            .set({
+              status: "active",
+              phoneNumber: sessionStatus.phoneNumber || "",
+              waId: sessionStatus.phoneNumber || "",
+              accessToken: `token_${input.sessionId}`,
+            })
+            .where(eq(whatsappIntegrations.sessionId, input.sessionId));
+
+          return {
+            status: "active",
+            phoneNumber: sessionStatus.phoneNumber || "",
+            waId: sessionStatus.phoneNumber || "",
+          };
+        }
+
+        // Check database for status
         const integration = await db
           .select()
           .from(whatsappIntegrations)
@@ -75,8 +102,8 @@ export const whatsappRouter = router({
 
         return {
           status: integration[0].status,
-          phoneNumber: integration[0].phoneNumber,
-          waId: integration[0].waId,
+          phoneNumber: integration[0].phoneNumber || "",
+          waId: integration[0].waId || "",
         };
       } catch (error) {
         console.error("Error checking WhatsApp status:", error);
@@ -134,6 +161,11 @@ export const whatsappRouter = router({
             code: "FORBIDDEN",
             message: "Not authorized to disconnect this integration",
           });
+        }
+
+        // Disconnect session
+        if (integration[0].sessionId) {
+          disconnectSession(integration[0].sessionId);
         }
 
         // Update status to disconnected
